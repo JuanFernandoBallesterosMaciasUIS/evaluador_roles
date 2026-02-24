@@ -115,6 +115,11 @@ const Ico = {
       <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
     </svg>
   ),
+  menu: (
+    <svg viewBox="0 0 24 24" style={{width:24,height:24}} fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  ),
 };
 
 // ── CSS ────────────────────────────────────────────────────────────────────
@@ -188,13 +193,13 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .logout-btn{display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:8px;cursor:pointer;color:var(--text3);font-size:13px;margin-top:6px;transition:all .15s;border:none;background:transparent;width:100%}
 .logout-btn:hover{background:rgba(239,68,68,.08);color:#EF4444}
 
-.main{margin-left:248px;padding:36px 40px;flex:1}
+.main{margin-left:248px;padding:36px 40px;flex:1;min-width:0;box-sizing:border-box}
 .pg-hdr{margin-bottom:26px}
 .pg-title{font-size:23px;font-weight:800;color:var(--text);letter-spacing:-.6px}
 .pg-sub{font-size:13px;color:var(--text2);margin-top:3px}
 
 /* ASSESSMENT */
-.assess-wrap{max-width:760px}
+.assess-wrap{width:100%;max-width:960px;margin:0 auto}
 .prog-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:6px}
 .prog-outer{background:var(--bdr);border-radius:100px;height:4px;margin-bottom:26px}
 .prog-inner{background:linear-gradient(90deg,var(--acc),var(--acc2));height:4px;border-radius:100px;transition:width .4s ease}
@@ -206,14 +211,14 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .q-text{font-size:14px;color:var(--text);line-height:1.65;margin-bottom:18px}
 
 /* ── SCALE: full width 10 boxes ── */
-.scale-lbl-row{display:grid;grid-template-columns:3fr 4fr 3fr;margin-bottom:7px}
+.scale-lbl-row{display:grid;grid-template-columns:3fr 4fr 3fr;margin-bottom:7px;width:100%}
 .slbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
 .slbl.red{color:#EF4444}
 .slbl.mid{color:var(--text3);text-align:center}
 .slbl.grn{color:#10B981;text-align:right}
-.scale-row{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;width:100%}
+.scale-row{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;width:100%}
 .sbox{
-  aspect-ratio:1;min-width:0;
+  aspect-ratio:1;min-width:0;max-height:60px;
   border-radius:8px;border:1.5px solid;
   cursor:pointer;
   display:flex;align-items:center;justify-content:center;
@@ -228,7 +233,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .sbox.mid.sel{background:${dark?"#64748B":"#64748B"};border-color:#64748B;color:#fff;transform:scale(1.1);box-shadow:0 3px 12px rgba(100,116,139,.3)}
 .sbox.grn.sel{background:#10B981;border-color:#10B981;color:#fff;transform:scale(1.1);box-shadow:0 3px 12px rgba(16,185,129,.35)}
 .sbox:hover:not(.sel){transform:scale(1.07);opacity:.82}
-.scale-segs{display:grid;grid-template-columns:3fr 4fr 3fr;gap:4px;margin-top:6px}
+.scale-segs{display:grid;grid-template-columns:3fr 4fr 3fr;gap:4px;margin-top:6px;width:100%}
 .sseg{height:3px;border-radius:100px}
 .sseg.red{background:rgba(239,68,68,.25)}
 .sseg.mid{background:${dark?"rgba(100,116,139,.2)":"#E2E8F0"}}
@@ -249,11 +254,11 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .btn-submit:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 
 /* RESULTS */
-.res-wrap{max-width:660px}
+.res-wrap{width:100%;max-width:960px;margin:0 auto}
 .res-hdr{margin-bottom:24px}
 .res-title{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-.6px}
 .res-sub{font-size:13px;color:var(--text2);margin-top:4px}
-.p-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:20px}
+.p-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:20px}
 .p-card{border-radius:13px;padding:20px;border:1.5px solid;position:relative;overflow:hidden}
 .p-card.top::after{content:'Mayor puntaje';position:absolute;top:10px;right:10px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;padding:2px 7px;border-radius:20px;background:rgba(0,0,0,.1);color:inherit}
 .p-ltr{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;opacity:.6;margin-bottom:3px}
@@ -288,24 +293,26 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .avg-sub{font-size:10px;color:var(--text3);margin-top:4px}
 
 /* TABLE */
-.tbl-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:13px;overflow:hidden}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:13px;overflow-x:auto}
 .tbl-head{
   display:grid;
-  grid-template-columns:minmax(120px,1.5fr) 110px repeat(4,1fr) 100px;
+  grid-template-columns:minmax(140px,1.5fr) 110px repeat(4,1fr) 100px;
   padding:11px 18px;
   background:${dark?"rgba(0,0,0,.25)":"#F8FAFC"};
   border-bottom:1px solid var(--bdr);
   gap:8px;
+  min-width: 800px;
 }
 .th{font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center}
 .th.ctr{justify-content:center}
 .tbl-row{
   display:grid;
-  grid-template-columns:minmax(120px,1.5fr) 110px repeat(4,1fr) 100px;
+  grid-template-columns:minmax(140px,1.5fr) 110px repeat(4,1fr) 100px;
   padding:12px 18px;
   border-bottom:1px solid ${dark?"rgba(255,255,255,.04)":"#F1F5F9"};
   transition:background .12s;cursor:pointer;align-items:center;
   gap:8px;
+  min-width: 800px;
 }
 .tbl-row:last-child{border-bottom:none}
 .tbl-row:hover{background:${dark?"rgba(79,70,229,.05)":"#F8FAFF"}}
@@ -341,17 +348,46 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .empty{text-align:center;padding:56px 20px;color:var(--text3)}
 .empty-t{font-size:14px;font-weight:600}
 
+/* MOBILE HEADER */
+.mob-hdr{display:none;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg2);border-bottom:1px solid var(--bdr);position:sticky;top:0;z-index:30}
+.mob-menu-btn{background:none;border:none;color:var(--text);cursor:pointer;padding:5px}
+.mob-logo{display:flex;align-items:center;gap:8px}
+.mob-logo-mark{width:28px;height:28px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:6px;padding:5px}
+.mob-logo-text{font-size:14px;font-weight:800}
+
 @media(max-width:900px){
-  .sidebar{display:none}
-  .main{margin-left:0;padding:18px 14px}
+  .mob-hdr{display:flex}
+  .sidebar{transform:translateX(-100%);transition:transform .3s ease;box-shadow:20px 0 50px rgba(0,0,0,0.2)}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0 !important;padding:24px 20px}
+  .layout{flex-direction:column}
   .stats-g{grid-template-columns:1fr 1fr}
   .avg-g{grid-template-columns:1fr 1fr}
-  .p-grid{grid-template-columns:1fr}
+  .p-grid{grid-template-columns:1fr 1fr}
   .dp-grid{grid-template-columns:1fr}
-  .tbl-head,.tbl-row{grid-template-columns:1fr 90px 70px;gap:4px}
-  .th:nth-child(n+4),.td:nth-child(n+4){display:none}
+  .q-card{padding:16px 18px}
+  .auth-card{padding:30px 24px}
+  .scale-row{gap:3px}
+  .sbox{font-size:11px;border-radius:6px}
+  .scale-lbl-row{display:flex;justify-content:space-between}
+  .slbl.mid{display:none}
+  .home-cta{padding:36px 24px}
+}
+
+@media(max-width:600px){
+  .stats-g,.avg-g{grid-template-columns:1fr}
+  .p-grid{grid-template-columns:1fr 1fr}
+  .pg-title{font-size:20px}
+  .q-card{padding:12px 14px}
+  .res-actions{flex-direction:column}
+  .btn-outline,.btn-submit{width:100%}
+  .scale-row{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr)}
+  .assess-foot{flex-direction:column;gap:12px;align-items:stretch}
+  .assess-foot .btn-submit{width:100%}
+  .foot-count{text-align:center}
 }
 `;
+
 
 const BOX_COLORS = ["red","red","red","mid","mid","mid","mid","grn","grn","grn"];
 
@@ -498,11 +534,13 @@ function UserHome({ user, onStartAssess }) {
   }, []);
   if (loading) return <div className="empty"><div className="empty-t">Cargando...</div></div>;
   return (
-    <div style={{maxWidth:660}}>
-      <div className="pg-hdr">
-        <div className="pg-title">Bienvenido/a, {user.username}</div>
-        <div className="pg-sub">Evaluacion de perfil profesional en proyectos de software</div>
-      </div>
+    <div style={{width:"100%"}}>
+      {!scores && (
+        <div className="pg-hdr">
+          <div className="pg-title">Bienvenido/a, {user.name || user.username}</div>
+          <div className="pg-sub">Evaluacion de perfil profesional en proyectos de software</div>
+        </div>
+      )}
       {!scores ? (
         <div className="home-cta">
           <div className="home-cta-t">No has completado la evaluacion</div>
@@ -538,7 +576,7 @@ function AdminDashboard() {
         <div className="modal-ov" onClick={e => e.target===e.currentTarget && setSel(null)}>
           <div className="modal">
             <div className="modal-hdr">
-              <div className="modal-title">Detalle: {sel.username}</div>
+              <div className="modal-title">Detalle: {sel.name || sel.username}</div>
               <button className="modal-x" onClick={() => setSel(null)}>x</button>
             </div>
             {!sel.answers
@@ -618,7 +656,7 @@ function AdminDashboard() {
         : (
           <div className="tbl-wrap">
             <div className="tbl-head">
-              <span className="th">Usuario</span>
+              <span className="th">Nombre / Usuario</span>
               <span className="th ctr">Estado</span>
               <span className="th ctr">Clarificador</span>
               <span className="th ctr">Ideador</span>
@@ -631,7 +669,12 @@ function AdminDashboard() {
               const maxK=u.scores?Object.entries(s).sort((a,b)=>b[1]-a[1])[0]?.[0]:null;
               return (
                 <div className="tbl-row" key={u.username} onClick={() => setSel(u)}>
-                  <span className="td bold">{u.username}</span>
+                  <span className="td bold">
+                    <div>
+                      <div style={{fontSize:13}}>{u.name || "Sin nombre"}</div>
+                      <div style={{fontSize:10, color:"var(--text3)", fontWeight:400}}>@{u.username}</div>
+                    </div>
+                  </span>
                   <span className="td ctr">
                     <span className={`badge ${u.answers?"b-done":"b-pend"}`}>{u.answers?"Completado":"Pendiente"}</span>
                   </span>
@@ -660,14 +703,14 @@ function AdminDashboard() {
 
 // ── APP ────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [dark, setDark] = useState(false);
   const [user, setUser] = useState(null);
   const [screen, setScreen] = useState("login");
   const [view, setView] = useState("home");
   const [login, setLogin] = useState({ username:"", password:"" });
-  const [reg, setReg] = useState({ username:"", password:"", confirm:"" });
+  const [reg, setReg] = useState({ name:"", username:"", password:"", confirm:"" });
   const [err, setErr] = useState("");
   const [toast, setToast] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const doLogin = async () => {
     if (!login.username||!login.password) { setErr("Completa todos los campos."); return; }
@@ -678,19 +721,19 @@ export default function App() {
     const u = all[login.username];
     if (!u) { setErr("Usuario no encontrado."); return; }
     if (u.password!==login.password) { setErr("Contrasena incorrecta."); return; }
-    setUser({username:login.username,role:"user"}); setScreen("app"); setErr("");
+    setUser({username:login.username, name:u.name, role:"user"}); setScreen("app"); setErr("");
   };
 
   const doReg = async () => {
-    if (!reg.username||!reg.password||!reg.confirm) { setErr("Completa todos los campos."); return; }
+    if (!reg.name||!reg.username||!reg.password||!reg.confirm) { setErr("Completa todos los campos."); return; }
     if (reg.password!==reg.confirm) { setErr("Las contrasenas no coinciden."); return; }
     if (reg.password.length<4) { setErr("Minimo 4 caracteres en la contrasena."); return; }
     if (reg.username==="admin") { setErr("Nombre de usuario no permitido."); return; }
     const all = await loadShared("all-users")||{};
     if (all[reg.username]) { setErr("Este usuario ya existe."); return; }
-    all[reg.username]={username:reg.username,password:reg.password,role:"user"};
+    all[reg.username]={name:reg.name, username:reg.username, password:reg.password, role:"user"};
     await saveShared("all-users",all);
-    setUser({username:reg.username,role:"user"}); setScreen("app"); setErr("");
+    setUser({name:reg.name, username:reg.username, role:"user"}); setScreen("app"); setErr("");
     setToast("Cuenta creada exitosamente");
   };
 
@@ -703,7 +746,7 @@ export default function App() {
 
   return (
     <>
-      <style>{buildCss(dark)}</style>
+      <style>{buildCss(false)}</style>
       <div className="app">
         {screen!=="app" ? (
           <div className="auth-wrap">
@@ -711,7 +754,7 @@ export default function App() {
               <div className="auth-brand">
                 <div className="auth-brand-mark">{Ico.brand}</div>
                 <div>
-                  <div className="auth-brand-name">RoleProfile</div>
+                  <div className="auth-brand-name">EvalPerfil</div>
                   <div className="auth-brand-sub">Evaluacion de perfil profesional</div>
                 </div>
               </div>
@@ -739,6 +782,11 @@ export default function App() {
                 <>
                   <div className="auth-heading">Crear cuenta</div>
                   <div className="field">
+                    <label>Nombre completo</label>
+                    <input placeholder="Tu nombre real" value={reg.name}
+                      onChange={e=>setReg({...reg,name:e.target.value})} />
+                  </div>
+                  <div className="field">
                     <label>Usuario</label>
                     <input placeholder="Elige un nombre de usuario" value={reg.username}
                       onChange={e=>setReg({...reg,username:e.target.value})} />
@@ -762,28 +810,36 @@ export default function App() {
           </div>
         ) : (
           <div className="layout">
-            <div className="sidebar">
+            <header className="mob-hdr">
+              <div className="mob-logo">
+                <div className="mob-logo-mark">{Ico.brand}</div>
+                <div className="mob-logo-text">EvalPerfil</div>
+              </div>
+              <button className="mob-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
+                {Ico.menu}
+              </button>
+            </header>
+
+            <div className={`sidebar${menuOpen ? " open" : ""}`}>
               <div className="sb-logo">
                 <div className="sb-logo-mark">{Ico.brand}</div>
                 <div>
-                  <div className="sb-logo-text">RoleProfile</div>
+                  <div className="sb-logo-text">EvalPerfil</div>
                   <div className="sb-logo-sub">Evaluacion de perfil</div>
                 </div>
               </div>
               <div className="nav-lbl">Menu</div>
               {navItems.map(n => (
-                <button key={n.view} className={`nav-item${view===n.view?" active":""}`} onClick={()=>setView(n.view)}>
+                <button key={n.view} className={`nav-item${view===n.view?" active":""}`} 
+                  onClick={()=>{setView(n.view); setMenuOpen(false);}}>
                   {n.icon}{n.label}
                 </button>
               ))}
               <div className="sb-bottom">
-                <button className="theme-btn" onClick={()=>setDark(d=>!d)}>
-                  {dark?Ico.sun:Ico.moon}{dark?"Modo claro":"Modo oscuro"}
-                </button>
                 <div className="user-card">
-                  <div className="user-av">{user?.username?.[0]?.toUpperCase()}</div>
+                  <div className="user-av">{(user?.name || user?.username)?.[0]?.toUpperCase()}</div>
                   <div>
-                    <div className="user-nm">{user?.username}{isAdmin&&<span className="admin-badge">Admin</span>}</div>
+                    <div className="user-nm">{user?.name || user?.username}{isAdmin&&<span className="admin-badge">Admin</span>}</div>
                     <div className="user-rl">{isAdmin?"Administrador":"Evaluado"}</div>
                   </div>
                 </div>
