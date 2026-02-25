@@ -491,38 +491,7 @@ function AssessmentPage({ user, onComplete }) {
   );
 }
 
-function ResultsPage({ scores, username, onRetake }) {
-  const maxVal = Math.max(...Object.values(scores));
-  return (
-    <div className="res-wrap">
-      <div className="res-hdr">
-        <div className="res-title">Resultados de {username}</div>
-        <div className="res-sub">Distribucion de perfil profesional en proyectos de software</div>
-      </div>
-      <div className="p-grid">
-        {Object.entries(PROFILES).map(([k,p]) => {
-          const s = scores[k]||0;
-          const pct = (s/MAX_SCORES[k])*100;
-          const isTop = s===maxVal && s>0;
-          return (
-            <div key={k} className={`p-card${isTop?" top":""}`}
-              style={{background:p.bg,borderColor:p.border,color:p.color}}>
-              <div className="p-ltr">Perfil {k}</div>
-              <div className="p-name">{p.label}</div>
-              <div className="p-bar-o"><div className="p-bar-i" style={{width:`${pct}%`,background:p.color}}/></div>
-              <div className="p-score">{s}</div>
-              <div className="p-max">de {MAX_SCORES[k]} puntos maximos</div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="res-actions">
-        <button className="btn-outline" onClick={onRetake}>Volver a responder</button>
-      </div>
-    </div>
-  );
-}
-
+// Renderizado de la página principal del usuario
 function UserHome({ user, onStartAssess }) {
   const [scores, setScores] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -543,12 +512,19 @@ function UserHome({ user, onStartAssess }) {
       )}
       {!scores ? (
         <div className="home-cta">
-          <div className="home-cta-t">No has completado la evaluacion</div>
-          <div className="home-cta-s">El cuestionario contiene 37 afirmaciones.<br/>Para cada una indica en una escala del 1 al 10 que tan identificado/a te sientes.</div>
-          <button className="btn-submit" onClick={onStartAssess}>Comenzar evaluacion</button>
+          <div className="home-cta-t">No has completado la evaluación</div>
+          <div className="home-cta-s">El cuestionario contiene 37 afirmaciones.<br/>Para cada una indica en una escala del 1 al 10 qué tan identificado/a te sientes.</div>
+          <button className="btn-submit" onClick={onStartAssess}>Comenzar evaluación</button>
         </div>
       ) : (
-        <ResultsPage scores={scores} username={user.username} onRetake={onStartAssess} />
+        <div className="home-cta">
+          <div className="home-cta-t">¡Evaluación completada!</div>
+          <div className="home-cta-s">
+            Gracias por completar el cuestionario. <br/>
+            Tus respuestas han sido enviadas exitosamente. Los resultados serán revisados por el administrador.
+          </div>
+          <button className="btn-outline" onClick={onStartAssess}>Volver a realizar la evaluación</button>
+        </div>
       )}
     </div>
   );
