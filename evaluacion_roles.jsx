@@ -204,8 +204,9 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .prog-outer{background:var(--bdr);border-radius:100px;height:4px;margin-bottom:26px}
 .prog-inner{background:linear-gradient(90deg,var(--acc),var(--acc2));height:4px;border-radius:100px;transition:width .4s ease}
 
-.q-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:22px 24px;margin-bottom:14px;transition:border-color .2s;scroll-margin-top:16px}
+.q-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:22px 24px;margin-bottom:14px;transition:all .2s;scroll-margin-top:16px;outline:none}
 .q-card.answered{border-left:3px solid var(--acc)}
+.q-card.active{border:2.5px solid var(--acc);box-shadow:0 8px 30px rgba(79,70,229,.12);transform:scale(1.01)}
 .q-card:hover{border-color:${dark?"rgba(79,70,229,.3)":"#C7D2FE"}}
 .q-num{font-size:10px;font-weight:700;color:var(--acc);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;font-family:'JetBrains Mono',monospace}
 .q-text{font-size:14px;color:var(--text);line-height:1.65;margin-bottom:18px}
@@ -422,8 +423,37 @@ function ScaleRow({ value, onChange }) {
 
 function AssessmentPage({ user, onComplete }) {
   const [answers, setAnswers] = useState(Array(37).fill(null));
+  const [active, setActive] = useState(0);
   const [saving, setSaving] = useState(false);
   const refs = useRef([]);
+
+  useEffect(() => {
+    const handleKey = (e) => {
+      if (saving) return;
+      
+      // Teclas 1-9 y 0 (para el 10)
+      let val = null;
+      if (e.key >= '1' && e.key <= '9') val = parseInt(e.key);
+      else if (e.key === '0') val = 10;
+      
+      if (val !== null) {
+        e.preventDefault();
+        const n = [...answers];
+        n[active] = val;
+        setAnswers(n);
+        
+        // Avanzar a la siguiente pregunta si existe
+        if (active < 36) {
+          const next = active + 1;
+          setActive(next);
+          refs.current[next]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [active, answers, saving]);
 
   const answered = answers.filter(a => a != null).length;
   const missing = answers.map((a,i) => a == null ? i : null).filter(x => x !== null);
@@ -444,7 +474,7 @@ function AssessmentPage({ user, onComplete }) {
     <div className="assess-wrap">
       <div className="pg-hdr">
         <div className="pg-title">Cuestionario de Perfil</div>
-        <div className="pg-sub">Indica que tan identificado te sientes con cada afirmacion (1 = para nada, 10 = totalmente)</div>
+        <div className="pg-sub">Puedes usar los números del teclado (1-9) y el 0 para el 10.</div>
       </div>
       <div className="prog-meta">
         <span>{answered} de 37 respondidas</span>
@@ -455,14 +485,18 @@ function AssessmentPage({ user, onComplete }) {
       {QUESTIONS.map((q,i) => (
         <div
           key={q.id}
-          className={`q-card${answers[i]!=null?" answered":""}`}
+          className={`q-card${answers[i]!=null?" answered":""}${active===i?" active":""}`}
           ref={el => refs.current[i]=el}
+          onClick={() => setActive(i)}
         >
           <div className="q-num">Pregunta {q.id} / 37</div>
           <div className="q-text">{q.text}</div>
           <ScaleRow
             value={answers[i]}
-            onChange={v => { const n=[...answers]; n[i]=v; setAnswers(n); }}
+            onChange={v => { 
+              const n=[...answers]; n[i]=v; setAnswers(n); 
+              setActive(i);
+            }}
           />
         </div>
       ))}
@@ -534,7 +568,32 @@ function AdminDashboard() {
   const [users, setUsers] = useState({});
   const [sel, setSel] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
+
   useEffect(() => { loadShared("all-users").then(d => { setUsers(d||{}); setLoading(false); }); }, []);
+
+  const handleSeed = async () => {
+    setSeeding(true);
+    const existing = await loadShared("all-users") || {};
+    const baseNames = ["Juan", "Maria", "Carlos", "Ana", "Luis", "Elena", "Diego", "Sofia", "Andres", "Lucia"];
+    const baseLast = ["Gomez", "Perez", "Rodriguez", "Lopez", "Martinez", "Garcia", "Sanchez", "Ramirez"];
+    
+    for (let i = 1; i <= 499; i++) {
+      const uname = `ejemplo_${i}`;
+      if (existing[uname]) continue;
+      const nom = `${baseNames[Math.floor(Math.random()*baseNames.length)]} ${baseLast[Math.floor(Math.random()*baseLast.length)]} (${i})`;
+      const ans = Array.from({length: 37}, () => Math.floor(Math.random() * 10) + 1);
+      existing[uname] = {
+        name: nom, username: uname, password: "123", role: "user",
+        answers: ans,
+        completedAt: new Date(Date.now() - Math.random() * 5000000000).toISOString(),
+        scores: calcResults(ans)
+      };
+    }
+    await saveShared("all-users", existing);
+    setUsers({...existing});
+    setSeeding(false);
+  };
 
   const all = Object.values(users);
   const done = all.filter(u => u.answers);
@@ -591,9 +650,16 @@ function AdminDashboard() {
         </div>
       )}
 
-      <div className="pg-hdr">
-        <div className="pg-title">Dashboard Administrador</div>
-        <div className="pg-sub">Resumen general de evaluaciones y resultados</div>
+      <div className="pg-hdr" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div>
+          <div className="pg-title">Dashboard Administrador</div>
+          <div className="pg-sub">Resumen general de evaluaciones y resultados</div>
+        </div>
+        {!all.some(u => u.username.startsWith("ejemplo_")) && (
+          <button className="btn-outline" onClick={handleSeed} disabled={seeding}>
+            {seeding ? "Generando..." : "Generar 499 datos de ejemplo"}
+          </button>
+        )}
       </div>
 
       <div className="stats-g">
