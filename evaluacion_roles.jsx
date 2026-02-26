@@ -1,43 +1,42 @@
 import { useState, useEffect, useRef } from "react";
 
 const QUESTIONS = [
-  { id: 1,  text: "Generalmente no me acerco a los problemas en forma creativa", type: "D" },
-  { id: 2,  text: "Me gusta probar y luego revisar mis ideas antes de generar la solucion o el producto final", type: "C" },
-  { id: 3,  text: "Me gusta tomarme el tiempo para clarificar la naturaleza exacta del problema", type: "A" },
-  { id: 4,  text: "Disfruto tomar los pasos necesarios para poner mis ideas en accion", type: "D" },
-  { id: 5,  text: "Me gusta separar un problema amplio en partes para examinarlo desde todos los angulos", type: "C" },
-  { id: 6,  text: "Tengo dificultad en tener ideas inusuales para resolver un problema", type: "B" },
-  { id: 7,  text: "Me gusta identificar los hechos mas relevantes relativos al problema", type: "A" },
-  { id: 8,  text: "No tengo el temperamento para tratar de aislar las causas especificas de un problema", type: "A" },
-  { id: 9,  text: "Disfruto en generar formas unicas de mirar un problema", type: "B" },
-  { id: 10, text: "Me gusta generar todos los pros y contras de una solucion potencial", type: "C" },
-  { id: 11, text: "Antes de implementar una solucion me gusta separarla en pasos", type: "C" },
-  { id: 12, text: "Transformar ideas en accion no es lo que mas disfruto", type: "D" },
-  { id: 13, text: "Me gusta superar el criterio que pueda usarse para identificar la mejor opcion o solucion", type: "C" },
-  { id: 14, text: "Disfruto de pasar el tiempo profundizando el analisis inicial del problema", type: "B" },
-  { id: 15, text: "Por naturaleza no paso mucho tiempo emocionandome en definir el problema exacto a resolver", type: "A" },
-  { id: 16, text: "Me gusta entender una situacion al mirar el panorama general", type: "B" },
-  { id: 17, text: "Disfruto de trabajar en problemas mal definidos y novedosos", type: "B" },
-  { id: 18, text: "Cuando trabajo en un problema, me gusta encontrar la mejor forma de enunciarlo", type: "A" },
-  { id: 19, text: "Disfruto en hacer que las cosas se concreten", type: "D" },
-  { id: 20, text: "Me gusta enfocarme en enunciar un problema en una forma precisa", type: "A" },
-  { id: 21, text: "Disfruto de utilizar mi imaginacion para producir muchas ideas", type: "B" },
-  { id: 22, text: "Me gusta enfocarme en la informacion clave de una situacion desafiante", type: "A" },
-  { id: 23, text: "Disfruto de tomarme el tiempo para perfeccionar una idea", type: "C" },
-  { id: 24, text: "Me resulta dificil implementar mis ideas", type: "D" },
-  { id: 25, text: "Disfruto en transformar ideas en bruto en soluciones concretas", type: "D" },
-  { id: 26, text: "No paso el tiempo en todas las cosas que necesito hacer para implementar una idea", type: "D" },
-  { id: 27, text: "Realmente disfruto de implementar una idea", type: "D" },
-  { id: 28, text: "Antes de avanzar me gusta tener una clara comprension del problema", type: "A" },
-  { id: 29, text: "Me gusta trabajar con ideas unicas", type: "B" },
-  { id: 30, text: "Disfruto de poner mis ideas en accion", type: "D" },
-  { id: 31, text: "Me gusta explorar las fortalezas y debilidades de una solucion potencial", type: "C" },
-  { id: 32, text: "Disfruto de reunir informacion para identificar el origen de un problema en particular", type: "A" },
-  { id: 33, text: "Disfruto el analisis y el esfuerzo que lleva transformar un concepto preliminar en una idea factible", type: "C" },
-  { id: 34, text: "Mi tendencia natural no es generar muchas ideas para los problemas", type: "B" },
-  { id: 35, text: "Disfruto de usar metaforas o analogias para generar nuevas ideas para los problemas", type: "B" },
-  { id: 36, text: "Encuentro que tengo poca paciencia para el esfuerzo que lleva pulir o refinar una idea", type: "C" },
-  { id: 37, text: "Tiendo a buscar una solucion rapida y luego implementarla", type: "D" },
+  { id: 1,  text: "Me gusta probar y luego revisar mis ideas antes de generar la solucion o el producto final", type: "C" },
+  { id: 2,  text: "Me gusta tomarme el tiempo para clarificar la naturaleza exacta del problema", type: "A" },
+  { id: 3,  text: "Disfruto tomar los pasos necesarios para poner mis ideas en accion", type: "D" },
+  { id: 4,  text: "Me gusta separar un problema amplio en partes para examinarlo desde todos los angulos", type: "C" },
+  { id: 5,  text: "Tengo dificultad en tener ideas inusuales para resolver un problema", type: "B" },
+  { id: 6,  text: "Me gusta identificar los hechos mas relevantes relativos al problema", type: "A" },
+  { id: 7,  text: "No tengo el temperamento para tratar de aislar las causas especificas de un problema", type: "A" },
+  { id: 8,  text: "Disfruto en generar formas unicas de mirar un problema", type: "B" },
+  { id: 9,  text: "Me gusta generar todos los pros y contras de una solucion potencial", type: "C" },
+  { id: 10, text: "Antes de implementar una solucion me gusta separarla en pasos", type: "C" },
+  { id: 11, text: "Transformar ideas en accion no es lo que mas disfruto", type: "D" },
+  { id: 12, text: "Me gusta superar el criterio que pueda usarse para identificar la mejor opcion o solucion", type: "C" },
+  { id: 13, text: "Disfruto de pasar el tiempo profundizando el analisis inicial del problema", type: "B" },
+  { id: 14, text: "Por naturaleza no paso mucho tiempo emocionandome en definir el problema exacto a resolver", type: "A" },
+  { id: 15, text: "Me gusta entender una situacion al mirar el panorama general", type: "B" },
+  { id: 16, text: "Disfruto de trabajar en problemas mal definidos y novedosos", type: "B" },
+  { id: 17, text: "Cuando trabajo en un problema, me gusta encontrar la mejor forma de enunciarlo", type: "A" },
+  { id: 18, text: "Disfruto en hacer que las cosas se concreten", type: "D" },
+  { id: 19, text: "Me gusta enfocarme en enunciar un problema en una forma precisa", type: "A" },
+  { id: 20, text: "Disfruto de utilizar mi imaginacion para producir muchas ideas", type: "B" },
+  { id: 21, text: "Me gusta enfocarme en la informacion clave de una situacion desafiante", type: "A" },
+  { id: 22, text: "Disfruto de tomarme el tiempo para perfeccionar una idea", type: "C" },
+  { id: 23, text: "Me resulta dificil implementar mis ideas", type: "D" },
+  { id: 24, text: "Disfruto en transformar ideas en bruto en soluciones concretas", type: "D" },
+  { id: 25, text: "No paso el tiempo en todas las cosas que necesito hacer para implementar una idea", type: "D" },
+  { id: 26, text: "Realmente disfruto de implementar una idea", type: "D" },
+  { id: 27, text: "Antes de avanzar me gusta tener una clara comprension del problema", type: "A" },
+  { id: 28, text: "Me gusta trabajar con ideas unicas", type: "B" },
+  { id: 29, text: "Disfruto de poner mis ideas en accion", type: "D" },
+  { id: 30, text: "Me gusta explorar las fortalezas y debilidades de una solucion potencial", type: "C" },
+  { id: 31, text: "Disfruto de reunir informacion para identificar el origen de un problema en particular", type: "A" },
+  { id: 32, text: "Disfruto el analisis y el esfuerzo que lleva transformar un concepto preliminar en una idea factible", type: "C" },
+  { id: 33, text: "Mi tendencia natural no es generar muchas ideas para los problemas", type: "B" },
+  { id: 34, text: "Disfruto de usar metaforas o analogias para generar nuevas ideas para los problemas", type: "B" },
+  { id: 35, text: "Encuentro que tengo poca paciencia para el esfuerzo que lleva pulir o refinar una idea", type: "C" },
+  { id: 36, text: "Tiendo a buscar una solucion rapida y luego implementarla", type: "D" },
 ];
 
 const PROFILES = {
@@ -422,7 +421,7 @@ function ScaleRow({ value, onChange }) {
 }
 
 function AssessmentPage({ user, onComplete }) {
-  const [answers, setAnswers] = useState(Array(37).fill(null));
+  const [answers, setAnswers] = useState(Array(QUESTIONS.length).fill(null));
   const [active, setActive] = useState(0);
   const [saving, setSaving] = useState(false);
   const refs = useRef([]);
@@ -443,7 +442,7 @@ function AssessmentPage({ user, onComplete }) {
         setAnswers(n);
         
         // Avanzar a la siguiente pregunta si existe
-        if (active < 36) {
+        if (active < QUESTIONS.length - 1) {
           const next = active + 1;
           setActive(next);
           refs.current[next]?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -459,7 +458,7 @@ function AssessmentPage({ user, onComplete }) {
   const missing = answers.map((a,i) => a == null ? i : null).filter(x => x !== null);
 
   const handleSubmit = async () => {
-    if (answered < 37 || saving) return;
+    if (answered < QUESTIONS.length || saving) return;
     setSaving(true);
     const all = await loadShared("all-users") || {};
     if (!all[user.username]) all[user.username] = { username: user.username, role: "user" };
@@ -472,15 +471,24 @@ function AssessmentPage({ user, onComplete }) {
 
   return (
     <div className="assess-wrap">
-      <div className="pg-hdr">
-        <div className="pg-title">Cuestionario de Perfil</div>
-        <div className="pg-sub">Puedes usar los números del teclado (1-9) y el 0 para el 10.</div>
+      <div style={{background:"var(--bg2)",border:"1px solid var(--bdr)",borderRadius:12,padding:"16px 22px",marginBottom:22,display:"flex",alignItems:"center",gap:14}}>
+        <div style={{width:40,height:40,background:"linear-gradient(135deg,var(--acc),#6366F1)",borderRadius:10,display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,fontWeight:800,color:"#fff",flexShrink:0}}>
+          {user?.name?.[0]?.toUpperCase()}
+        </div>
+        <div>
+          <div style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>{user?.name}</div>
+          <div style={{fontSize:11,color:"var(--text3)",fontFamily:"'JetBrains Mono',monospace"}}>Código: {user?.username}</div>
+        </div>
+        <div style={{marginLeft:"auto",fontSize:11,color:"var(--text3)",textAlign:"right",lineHeight:1.5}}>
+          <span style={{fontWeight:700,color:"var(--text2)"}}>⌨ Atajo de teclado:</span><br/>
+          Presiona <strong style={{color:"var(--acc)"}}>1</strong> a <strong style={{color:"var(--acc)"}}>9</strong> para responder, <strong style={{color:"var(--acc)"}}>0</strong> para el valor <strong style={{color:"var(--acc)"}}>10</strong>
+        </div>
       </div>
       <div className="prog-meta">
-        <span>{answered} de 37 respondidas</span>
-        <span>{Math.round((answered/37)*100)}%</span>
+        <span>{answered} de {QUESTIONS.length} respondidas</span>
+        <span>{Math.round((answered/QUESTIONS.length)*100)}%</span>
       </div>
-      <div className="prog-outer"><div className="prog-inner" style={{width:`${(answered/37)*100}%`}}/></div>
+      <div className="prog-outer"><div className="prog-inner" style={{width:`${(answered/QUESTIONS.length)*100}%`}}/></div>
 
       {QUESTIONS.map((q,i) => (
         <div
@@ -489,7 +497,7 @@ function AssessmentPage({ user, onComplete }) {
           ref={el => refs.current[i]=el}
           onClick={() => setActive(i)}
         >
-          <div className="q-num">Pregunta {q.id} / 37</div>
+          <div className="q-num">Pregunta {q.id} / {QUESTIONS.length}</div>
           <div className="q-text">{q.text}</div>
           <ScaleRow
             value={answers[i]}
@@ -516,8 +524,8 @@ function AssessmentPage({ user, onComplete }) {
       )}
 
       <div className="assess-foot">
-        <div className="foot-count"><strong>{answered}</strong> de 37 respondidas</div>
-        <button className="btn-submit" onClick={handleSubmit} disabled={answered<37||saving}>
+        <div className="foot-count"><strong>{answered}</strong> de {QUESTIONS.length} respondidas</div>
+        <button className="btn-submit" onClick={handleSubmit} disabled={answered < QUESTIONS.length || saving}>
           {saving ? "Guardando..." : "Enviar evaluacion"}
         </button>
       </div>
@@ -547,7 +555,7 @@ function UserHome({ user, onStartAssess }) {
       {!scores ? (
         <div className="home-cta">
           <div className="home-cta-t">No has completado la evaluación</div>
-          <div className="home-cta-s">El cuestionario contiene 37 afirmaciones.<br/>Para cada una indica en una escala del 1 al 10 qué tan identificado/a te sientes.</div>
+          <div className="home-cta-s">El cuestionario contiene {QUESTIONS.length} afirmaciones.<br/>Para cada una indica en una escala del 1 al 10 qué tan identificado/a te sientes.</div>
           <button className="btn-submit" onClick={onStartAssess}>Comenzar evaluación</button>
         </div>
       ) : (
@@ -579,12 +587,14 @@ function AdminDashboard() {
     const baseLast = ["Gomez", "Perez", "Rodriguez", "Lopez", "Martinez", "Garcia", "Sanchez", "Ramirez"];
     
     for (let i = 1; i <= 499; i++) {
-      const uname = `ejemplo_${i}`;
+      const uname = `EJE-${1000 + i}`; // Usar un formato de código para el ejemplo
       if (existing[uname]) continue;
-      const nom = `${baseNames[Math.floor(Math.random()*baseNames.length)]} ${baseLast[Math.floor(Math.random()*baseLast.length)]} (${i})`;
-      const ans = Array.from({length: 37}, () => Math.floor(Math.random() * 10) + 1);
+      const nom = `${baseNames[Math.floor(Math.random()*baseNames.length)]} ${baseLast[Math.floor(Math.random()*baseLast.length)]}`;
+      const ans = Array.from({length: QUESTIONS.length}, () => Math.floor(Math.random() * 10) + 1);
       existing[uname] = {
-        name: nom, username: uname, password: "123", role: "user",
+        name: nom, 
+        username: uname, // El código actúa como ID único
+        role: "user",
         answers: ans,
         completedAt: new Date(Date.now() - Math.random() * 5000000000).toISOString(),
         scores: calcResults(ans)
@@ -592,6 +602,20 @@ function AdminDashboard() {
     }
     await saveShared("all-users", existing);
     setUsers({...existing});
+    setSeeding(false);
+  };
+
+  const handleClear = async () => {
+    if (!confirm("¿Seguro que quieres borrar los 499 registros de ejemplo?")) return;
+    setSeeding(true);
+    const existing = await loadShared("all-users") || {};
+    const filtered = {};
+    Object.entries(existing).forEach(([k, v]) => {
+      // Filtrar registros que empiecen con EJE- o ejemplo_
+      if (!k.startsWith("EJE-") && !k.startsWith("ejemplo_")) filtered[k] = v;
+    });
+    await saveShared("all-users", filtered);
+    setUsers(filtered);
     setSeeding(false);
   };
 
@@ -616,15 +640,35 @@ function AdminDashboard() {
             </div>
             {!sel.answers
               ? <div className="empty"><div className="empty-t">Usuario sin evaluacion completada</div></div>
-              : <>
+              : (() => {
+                  const sc=sel.scores||{};
+                  const maxV=Math.max(...Object.values(sc));
+                  const topK=Object.keys(sc).filter(k=>sc[k]===maxV);
+                  const hasTie=topK.length>1;
+                  return <>
+                  {hasTie && (
+                    <div style={{background:"rgba(245,158,11,.1)",border:"1px solid rgba(245,158,11,.3)",borderRadius:8,padding:"8px 14px",marginBottom:14,fontSize:12,fontWeight:600,color:"#D97706"}}>
+                      ⚠ Empate detectado entre: {topK.map(k=>PROFILES[k].label).join(" y ")} ({maxV} pts cada uno)
+                    </div>
+                  )}
                   <div className="dp-grid">
-                    {Object.entries(PROFILES).map(([k,p]) => (
-                      <div key={k} className="dp-c" style={{background:p.bg,borderColor:p.border,color:p.color}}>
-                        <div className="dp-ltr">Perfil {k}</div>
+                    {Object.entries(PROFILES).map(([k,p]) => {
+                      const isTop=topK.includes(k);
+                      return (
+                      <div key={k} className="dp-c" style={{
+                        background:isTop?p.color:p.bg,
+                        borderColor:isTop?p.color:p.border,
+                        color:isTop?"#fff":p.color,
+                        transform:isTop?"scale(1.03)":"none",
+                        boxShadow:isTop?`0 4px 16px ${p.color}44`:"none",
+                        transition:"all .2s"
+                      }}>
+                        <div className="dp-ltr" style={{opacity:isTop?0.85:0.6}}>Perfil {k}{isTop?(hasTie?" — Empate":" — Mayor puntaje"):""}</div>
                         <div className="dp-nm">{p.label}</div>
                         <div className="dp-sc">{sel.scores?.[k]||0} pts</div>
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                   <div className="sec-t" style={{marginBottom:9}}>Respuestas por pregunta</div>
                   <div className="q-list">
@@ -645,6 +689,7 @@ function AdminDashboard() {
                     })}
                   </div>
                 </>
+                })()
             }
           </div>
         </div>
@@ -655,11 +700,17 @@ function AdminDashboard() {
           <div className="pg-title">Dashboard Administrador</div>
           <div className="pg-sub">Resumen general de evaluaciones y resultados</div>
         </div>
-        {!all.some(u => u.username.startsWith("ejemplo_")) && (
-          <button className="btn-outline" onClick={handleSeed} disabled={seeding}>
-            {seeding ? "Generando..." : "Generar 499 datos de ejemplo"}
-          </button>
-        )}
+        <div style={{display:"flex",gap:"10px"}}>
+          {!all.some(u => u.username.startsWith("EJE-") || u.username.startsWith("ejemplo_")) ? (
+            <button className="btn-outline" onClick={handleSeed} disabled={seeding}>
+              {seeding ? "Generando..." : "Generar 499 datos de ejemplo"}
+            </button>
+          ) : (
+            <button className="btn-outline" style={{borderColor:"#EF4444",color:"#EF4444"}} onClick={handleClear} disabled={seeding}>
+              {seeding ? "Limpiando..." : "Limpiar datos de ejemplo"}
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="stats-g">
@@ -708,7 +759,9 @@ function AdminDashboard() {
             </div>
             {all.map(u => {
               const s=u.scores||{};
-              const maxK=u.scores?Object.entries(s).sort((a,b)=>b[1]-a[1])[0]?.[0]:null;
+              const maxVal=u.scores?Math.max(...Object.values(s)):0;
+              const topKeys=u.scores?Object.keys(s).filter(k=>s[k]===maxVal):[];
+              const isTied=topKeys.length>1;
               return (
                 <div className="tbl-row" key={u.username} onClick={() => setSel(u)}>
                   <span className="td bold">
@@ -720,16 +773,25 @@ function AdminDashboard() {
                   <span className="td ctr">
                     <span className={`badge ${u.answers?"b-done":"b-pend"}`}>{u.answers?"Completado":"Pendiente"}</span>
                   </span>
-                  {["A","B","C","D"].map(k => (
+                  {["A","B","C","D"].map(k => {
+                    const isTop=topKeys.includes(k);
+                    return (
                     <span className="td ctr" key={k}>
                       {s[k]!=null
-                        ? <span className="score-pill" style={{background:PROFILES[k].bg,color:PROFILES[k].color,border:`1px solid ${PROFILES[k].border}`}}>
-                            {s[k]}{k===maxK?" *":""}
+                        ? <span className="score-pill" style={{
+                            background:isTop?PROFILES[k].color:PROFILES[k].bg,
+                            color:isTop?"#fff":PROFILES[k].color,
+                            border:`1px solid ${PROFILES[k].border}`,
+                            fontWeight:isTop?800:700,
+                            boxShadow:isTop?`0 2px 8px ${PROFILES[k].color}44`:'none'
+                          }}>
+                            {s[k]}{isTop&&isTied?" ≡":isTop?" ★":""}
                           </span>
                         : <span style={{color:"var(--text3)"}}>—</span>
                       }
                     </span>
-                  ))}
+                    );
+                  })}
                   <span className="td ctr" style={{fontSize:11,color:"var(--text3)"}}>
                     {u.completedAt?new Date(u.completedAt).toLocaleDateString("es-CO"):"—"}
                   </span>
@@ -748,38 +810,56 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [screen, setScreen] = useState("login");
   const [view, setView] = useState("home");
-  const [login, setLogin] = useState({ username:"", password:"" });
-  const [reg, setReg] = useState({ name:"", username:"", password:"", confirm:"" });
+  const [login, setLogin] = useState({ name:"", code:"" });
   const [err, setErr] = useState("");
   const [toast, setToast] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [adminMode, setAdminMode] = useState(false);
 
   const doLogin = async () => {
-    if (!login.username||!login.password) { setErr("Completa todos los campos."); return; }
-    if (login.username==="admin"&&login.password==="admin123") {
-      setUser({username:"admin",role:"admin"}); setScreen("app"); setErr(""); return;
+    if (!login.name || !login.code) { 
+      setErr("Por favor ingresa tu nombre y código."); 
+      return; 
     }
-    const all = await loadShared("all-users")||{};
-    const u = all[login.username];
-    if (!u) { setErr("Usuario no encontrado."); return; }
-    if (u.password!==login.password) { setErr("Contrasena incorrecta."); return; }
-    setUser({username:login.username, name:u.name, role:"user"}); setScreen("app"); setErr("");
+
+    // Admin Access
+    if (login.name.toLowerCase() === "admin" && login.code === "admin123") {
+      setUser({ username: "admin", name: "Administrador", role: "admin" });
+      setScreen("app");
+      setErr("");
+      return;
+    }
+
+    const all = await loadShared("all-users") || {};
+    const existing = all[login.code];
+
+    if (existing) {
+      // User exists, just log in
+      setUser({ username: login.code, name: existing.name, role: "user" });
+    } else {
+      // Auto-register new user
+      const newUser = { 
+        name: login.name, 
+        username: login.code, // Utilizar código como username único
+        role: "user" 
+      };
+      all[login.code] = newUser;
+      await saveShared("all-users", all);
+      setUser({ username: login.code, name: login.name, role: "user" });
+      setToast("Bienvenido, tu perfil ha sido creado");
+    }
+
+    setScreen("app");
+    setErr("");
   };
 
-  const doReg = async () => {
-    if (!reg.name||!reg.username||!reg.password||!reg.confirm) { setErr("Completa todos los campos."); return; }
-    if (reg.password!==reg.confirm) { setErr("Las contrasenas no coinciden."); return; }
-    if (reg.password.length<4) { setErr("Minimo 4 caracteres en la contrasena."); return; }
-    if (reg.username==="admin") { setErr("Nombre de usuario no permitido."); return; }
-    const all = await loadShared("all-users")||{};
-    if (all[reg.username]) { setErr("Este usuario ya existe."); return; }
-    all[reg.username]={name:reg.name, username:reg.username, password:reg.password, role:"user"};
-    await saveShared("all-users",all);
-    setUser({name:reg.name, username:reg.username, role:"user"}); setScreen("app"); setErr("");
-    setToast("Cuenta creada exitosamente");
+  const doLogout = () => { 
+    setUser(null); 
+    setScreen("login"); 
+    setErr(""); 
+    setLogin({ name: "", code: "" }); 
+    setView("home"); 
   };
-
-  const doLogout = () => { setUser(null); setScreen("login"); setErr(""); setLogin({username:"",password:""}); setView("home"); };
 
   const isAdmin = user?.role==="admin";
   const navItems = isAdmin
@@ -790,10 +870,9 @@ export default function App() {
     <>
       <style>{buildCss(false)}</style>
       <div className="app">
-        {screen!=="app" ? (
+        {screen==="login" ? (
           <div className="auth-wrap">
-            <div className="auth-card">
-              <div className="auth-brand">
+            <div className="auth-card">              <div className="auth-brand">
                 <div className="auth-brand-mark">{Ico.brand}</div>
                 <div>
                   <div className="auth-brand-name">EvalPerfil</div>
@@ -801,56 +880,66 @@ export default function App() {
                 </div>
               </div>
               {err && <div className="auth-err">{err}</div>}
-              {screen==="login" ? (
+              {!adminMode ? (
                 <>
-                  <div className="auth-heading">Iniciar sesion</div>
-                  <div className="field">
-                    <label>Usuario</label>
-                    <input placeholder="Tu nombre de usuario" value={login.username}
-                      onChange={e=>setLogin({...login,username:e.target.value})}
-                      onKeyDown={e=>e.key==="Enter"&&doLogin()} />
+                  <div className="auth-heading">Responder Encuesta</div>
+                  <div className="pg-sub" style={{marginBottom:18,fontSize:13,color:"var(--text2)",lineHeight:1.6}}>
+                    Ingresa tu nombre y código para acceder al cuestionario de perfil profesional.
                   </div>
                   <div className="field">
-                    <label>Contrasena</label>
-                    <input type="password" placeholder="Tu contrasena" value={login.password}
-                      onChange={e=>setLogin({...login,password:e.target.value})}
-                      onKeyDown={e=>e.key==="Enter"&&doLogin()} />
+                    <label>Nombre Completo</label>
+                    <input 
+                      placeholder="Ej: Juan Pérez" 
+                      value={login.name}
+                      onChange={e => setLogin({ ...login, name: e.target.value })}
+                    />
                   </div>
-                  <button className="btn-primary" onClick={doLogin}>Iniciar sesion</button>
-                  <div className="auth-switch">No tienes cuenta? <span onClick={()=>{setScreen("register");setErr("");}}>Registrate</span></div>
-                  <div className="auth-hint">Admin: <code>admin / admin123</code></div>
+                  <div className="field">
+                    <label>Código</label>
+                    <input 
+                      placeholder="Tu código de identificación" 
+                      value={login.code}
+                      onChange={e => setLogin({ ...login, code: e.target.value })}
+                      onKeyDown={e => e.key === "Enter" && doLogin()} 
+                    />
+                  </div>
+                  <button className="btn-primary" onClick={doLogin}>Comenzar encuesta</button>
+                  <div style={{textAlign:"center",marginTop:20}}>
+                    <span 
+                      onClick={() => { setAdminMode(true); setErr(""); setLogin({name:"",code:""}); }}
+                      style={{fontSize:11,color:"var(--text3)",cursor:"pointer",textDecoration:"underline"}}>
+                      Acceso administrador
+                    </span>
+                  </div>
                 </>
               ) : (
                 <>
-                  <div className="auth-heading">Crear cuenta</div>
+                  <div className="auth-heading">Acceso Administrador</div>
                   <div className="field">
-                    <label>Nombre completo</label>
-                    <input placeholder="Tu nombre real" value={reg.name}
-                      onChange={e=>setReg({...reg,name:e.target.value})} />
+                    <label>Nombre</label>
+                    <input 
+                      placeholder="Nombre de administrador" 
+                      value={login.name}
+                      onChange={e => setLogin({ ...login, name: e.target.value })}
+                    />
                   </div>
                   <div className="field">
-                    <label>Usuario</label>
-                    <input placeholder="Elige un nombre de usuario" value={reg.username}
-                      onChange={e=>setReg({...reg,username:e.target.value})} />
+                    <label>Código de acceso</label>
+                    <input 
+                      type="password"
+                      placeholder="Código secreto" 
+                      value={login.code}
+                      onChange={e => setLogin({ ...login, code: e.target.value })}
+                      onKeyDown={e => e.key === "Enter" && doLogin()} 
+                    />
                   </div>
-                  <div className="field">
-                    <label>Contrasena</label>
-                    <input type="password" placeholder="Minimo 4 caracteres" value={reg.password}
-                      onChange={e=>setReg({...reg,password:e.target.value})} />
-                  </div>
-                  <div className="field">
-                    <label>Confirmar contrasena</label>
-                    <input type="password" placeholder="Repite tu contrasena" value={reg.confirm}
-                      onChange={e=>setReg({...reg,confirm:e.target.value})}
-                      onKeyDown={e=>e.key==="Enter"&&doReg()} />
-                  </div>
-                  <button className="btn-primary" onClick={doReg}>Crear cuenta</button>
-                  <button className="btn-ghost" onClick={()=>{setScreen("login");setErr("");}}>Volver al inicio de sesion</button>
+                  <button className="btn-primary" onClick={doLogin}>Ingresar</button>
+                  <button className="btn-ghost" onClick={() => { setAdminMode(false); setErr(""); setLogin({name:"",code:""}); }}>Volver</button>
                 </>
               )}
             </div>
           </div>
-        ) : (
+        ) : screen==="done" ? null : isAdmin ? (
           <div className="layout">
             <header className="mob-hdr">
               <div className="mob-logo">
@@ -861,7 +950,6 @@ export default function App() {
                 {Ico.menu}
               </button>
             </header>
-
             <div className={`sidebar${menuOpen ? " open" : ""}`}>
               <div className="sb-logo">
                 <div className="sb-logo-mark">{Ico.brand}</div>
@@ -871,30 +959,53 @@ export default function App() {
                 </div>
               </div>
               <div className="nav-lbl">Menu</div>
-              {navItems.map(n => (
-                <button key={n.view} className={`nav-item${view===n.view?" active":""}`} 
-                  onClick={()=>{setView(n.view); setMenuOpen(false);}}>
-                  {n.icon}{n.label}
-                </button>
-              ))}
+              <button className="nav-item active">{Ico.dash}Dashboard</button>
               <div className="sb-bottom">
                 <div className="user-card">
-                  <div className="user-av">{(user?.name || user?.username)?.[0]?.toUpperCase()}</div>
+                  <div className="user-av">A</div>
                   <div>
-                    <div className="user-nm">{user?.name || user?.username}{isAdmin&&<span className="admin-badge">Admin</span>}</div>
-                    <div className="user-rl">{isAdmin?"Administrador":"Evaluado"}</div>
+                    <div className="user-nm">Administrador<span className="admin-badge">Admin</span></div>
+                    <div className="user-rl">Administrador</div>
                   </div>
                 </div>
                 <button className="logout-btn" onClick={doLogout}>{Ico.logout} Cerrar sesion</button>
               </div>
             </div>
-            <div className="main">
-              {isAdmin
-                ? <AdminDashboard/>
-                : view==="assess"
-                  ? <AssessmentPage user={user} onComplete={()=>{setView("home");setToast("Evaluacion enviada con exito");}}/>
-                  : <UserHome user={user} onStartAssess={()=>setView("assess")}/>
-              }
+            <div className="main"><AdminDashboard/></div>
+          </div>
+        ) : (
+          /* Layout limpio para evaluados — sin sidebar */
+          <div style={{minHeight:"100vh",background:"var(--bg)",boxSizing:"border-box"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 28px",background:"var(--bg2)",borderBottom:"1px solid var(--bdr)",position:"sticky",top:0,zIndex:30,boxShadow:"0 2px 10px rgba(0,0,0,.05)"}}>
+              <div style={{display:"flex",alignItems:"center",gap:9}}>
+                <div style={{width:28,height:28,background:"linear-gradient(135deg,var(--acc),#6366F1)",borderRadius:7,padding:5,flexShrink:0}}>{Ico.brand}</div>
+                <span style={{fontSize:14,fontWeight:800,color:"var(--text)"}}>EvalPerfil</span>
+              </div>
+              <button className="logout-btn" style={{marginTop:0,width:"auto"}} onClick={doLogout}>{Ico.logout} Salir</button>
+            </div>
+            <div style={{maxWidth:780,margin:"0 auto",padding:"32px 20px"}}>
+              <AssessmentPage
+                user={user}
+                onComplete={() => {
+                  setScreen("done");
+                }}
+              />
+            </div>
+          </div>
+        )}
+        {/* Pantalla de encuesta completada para evaluados */}
+        {screen==="done" && (
+          <div style={{minHeight:"100vh",background:"var(--bg)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+            <div className="auth-card" style={{textAlign:"center"}}>
+              <div style={{fontSize:48,marginBottom:12}}>✅</div>
+              <div style={{fontSize:20,fontWeight:800,color:"var(--text)",marginBottom:8}}>¡Encuesta enviada!</div>
+              <div style={{fontSize:14,color:"var(--text2)",lineHeight:1.65,marginBottom:24}}>
+                Gracias, <strong>{user?.name}</strong>.<br/>
+                Tus respuestas han sido registradas correctamente.<br/>
+                Los resultados serán revisados por el administrador.
+              </div>
+              <button className="btn-outline" onClick={() => { setScreen("app"); }}>Responder de nuevo</button>
+              <button className="logout-btn" style={{marginTop:10,justifyContent:"center"}} onClick={doLogout}>{Ico.logout} Salir</button>
             </div>
           </div>
         )}
