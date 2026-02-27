@@ -172,7 +172,21 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 
 /* LAYOUT */
 .layout{display:flex;min-height:100vh}
-.sidebar{width:248px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--bdr);padding:22px 14px;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:20}
+.sidebar{width:200px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--bdr);padding:18px 10px;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:20;transition:width .25s ease,padding .25s ease;overflow:hidden}
+.sidebar.collapsed{width:56px;padding:18px 6px}
+.sidebar.collapsed .nav-lbl,.sidebar.collapsed .sb-logo-text,.sidebar.collapsed .sb-logo-sub,.sidebar.collapsed .user-nm,.sidebar.collapsed .user-rl,.sidebar.collapsed .admin-badge{display:none}
+.sidebar.collapsed .nav-item{justify-content:center;padding:9px 0}
+.sidebar.collapsed .nav-item span,.sidebar.collapsed .nav-item svg~*{display:none}
+.sidebar.collapsed .theme-btn{justify-content:center;padding:9px 0}
+.sidebar.collapsed .theme-btn span,.sidebar.collapsed .theme-btn svg~*{display:none}
+.sidebar.collapsed .logout-btn{justify-content:center;padding:9px 0}
+.sidebar.collapsed .logout-btn svg~*{display:none}
+.sidebar.collapsed .user-card{padding:6px;justify-content:center}
+.sidebar.collapsed .user-card>div:not(.user-av){display:none}
+.sidebar.collapsed .sb-logo{justify-content:center;padding:6px 0}
+.sb-toggle{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;border:1px solid var(--bdr);background:var(--bg2);cursor:pointer;color:var(--text2);margin-bottom:10px;align-self:flex-end;flex-shrink:0;transition:all .15s}
+.sb-toggle:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
+.sidebar.collapsed .sb-toggle{align-self:center}
 .sb-logo{display:flex;align-items:center;gap:10px;padding:6px 8px;margin-bottom:26px}
 .sb-logo-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:8px;padding:6px;flex-shrink:0}
 .sb-logo-text{font-size:14px;font-weight:800;color:var(--text);letter-spacing:-.3px}
@@ -192,7 +206,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .logout-btn{display:flex;align-items:center;gap:9px;padding:9px 8px;border-radius:8px;cursor:pointer;color:var(--text3);font-size:13px;margin-top:6px;transition:all .15s;border:none;background:transparent;width:100%}
 .logout-btn:hover{background:rgba(239,68,68,.08);color:#EF4444}
 
-.main{margin-left:248px;padding:36px 40px;flex:1;min-width:0;box-sizing:border-box}
+.main{padding:36px 40px;flex:1;min-width:0;box-sizing:border-box;transition:margin-left .25s ease}
 .pg-hdr{margin-bottom:26px}
 .pg-title{font-size:23px;font-weight:800;color:var(--text);letter-spacing:-.6px}
 .pg-sub{font-size:13px;color:var(--text2);margin-top:3px}
@@ -301,23 +315,23 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .tbl-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:13px;overflow-x:auto}
 .tbl-head{
   display:grid;
-  grid-template-columns:minmax(140px,1.5fr) 110px repeat(4,1fr) 100px;
+  grid-template-columns:minmax(140px,1.5fr) 110px repeat(4,1fr) 100px 60px;
   padding:11px 18px;
   background:${dark?"rgba(0,0,0,.25)":"#F8FAFC"};
   border-bottom:1px solid var(--bdr);
   gap:8px;
-  min-width: 800px;
+  min-width: 860px;
 }
 .th{font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center}
 .th.ctr{justify-content:center}
 .tbl-row{
   display:grid;
-  grid-template-columns:minmax(140px,1.5fr) 110px repeat(4,1fr) 100px;
+  grid-template-columns:minmax(140px,1.5fr) 110px repeat(4,1fr) 100px 60px;
   padding:12px 18px;
   border-bottom:1px solid ${dark?"rgba(255,255,255,.04)":"#F1F5F9"};
   transition:background .12s;cursor:pointer;align-items:center;
   gap:8px;
-  min-width: 800px;
+  min-width: 860px;
 }
 .tbl-row:last-child{border-bottom:none}
 .tbl-row:hover{background:${dark?"rgba(79,70,229,.05)":"#F8FAFF"}}
@@ -489,10 +503,7 @@ function AssessmentPage({ user, onComplete }) {
           <div style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>{user?.name}</div>
           <div style={{fontSize:11,color:"var(--text3)",fontFamily:"'JetBrains Mono',monospace"}}>Identificación: {user?.username}</div>
         </div>
-        <div style={{marginLeft:"auto",fontSize:11,color:"var(--text3)",textAlign:"right",lineHeight:1.5}}>
-          <span style={{fontWeight:700,color:"var(--text2)"}}>⌨ Atajo de teclado:</span><br/>
-          Presiona <strong style={{color:"var(--acc)"}}>1</strong> a <strong style={{color:"var(--acc)"}}>9</strong> para responder, <strong style={{color:"var(--acc)"}}>0</strong> para el valor <strong style={{color:"var(--acc)"}}>10</strong>
-        </div>
+
       </div>
       <div className="prog-sticky">
         <div className="prog-meta">
@@ -584,12 +595,14 @@ function UserHome({ user, onStartAssess }) {
   );
 }
 
-function AdminDashboard() {
+function AdminDashboard({ view = "resumen" }) {
   const [users, setUsers] = useState({});
   const [sel, setSel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
   const [seedCount, setSeedCount] = useState(50);
+  const [confirmClear, setConfirmClear] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // {key, user}
 
   useEffect(() => { loadShared("all-users").then(d => { setUsers(d||{}); setLoading(false); }); }, []);
 
@@ -599,34 +612,49 @@ function AdminDashboard() {
     const baseNames = ["Juan", "Maria", "Carlos", "Ana", "Luis", "Elena", "Diego", "Sofia", "Andres", "Lucia"];
     const baseLast = ["Gomez", "Perez", "Rodriguez", "Lopez", "Martinez", "Garcia", "Sanchez", "Ramirez"];
     
+    const usedCedulas = new Set(Object.values(existing).map(u => u.username));
+    const genCedula = () => {
+      const len = Math.floor(Math.random() * 4) + 7;
+      const first = Math.floor(Math.random() * 9) + 1;
+      const rest = Array.from({length: len - 1}, () => Math.floor(Math.random() * 10)).join('');
+      return `${first}${rest}`;
+    };
     const total = Math.max(1, Math.min(2000, Number(seedCount) || 50));
-    for (let i = 1; i <= total; i++) {
-      const uname = `EJE-${1000 + i}`; // Usar un formato de código para el ejemplo
-      if (existing[uname]) continue;
+    let count = 0;
+    let idx = Date.now();
+    while (count < total) {
+      const uname = `EJE-${idx++}`;
+      let cedula = genCedula();
+      while (usedCedulas.has(cedula)) cedula = genCedula();
+      usedCedulas.add(cedula);
       const nom = `${baseNames[Math.floor(Math.random()*baseNames.length)]} ${baseLast[Math.floor(Math.random()*baseLast.length)]}`;
       const ans = Array.from({length: QUESTIONS.length}, () => Math.floor(Math.random() * 10) + 1);
       existing[uname] = {
         name: nom, 
-        username: uname, // El código actúa como ID único
+        username: cedula,
         role: "user",
         answers: ans,
         completedAt: new Date(Date.now() - Math.random() * 5000000000).toISOString(),
         scores: calcResults(ans)
       };
+      count++;
     }
     await saveShared("all-users", existing);
     setUsers({...existing});
     setSeeding(false);
   };
 
-  const handleClear = async () => {
-    const exCount = all.filter(u => u.username.startsWith("EJE-") || u.username.startsWith("ejemplo_")).length;
-    if (!confirm(`¿Seguro que quieres borrar los ${exCount} registros de ejemplo?`)) return;
+  const handleClear = () => {
+    const exCount = Object.keys(users).filter(k => k.startsWith("EJE-") || k.startsWith("ejemplo_")).length;
+    setConfirmClear({ count: exCount });
+  };
+
+  const doClear = async () => {
+    setConfirmClear(null);
     setSeeding(true);
     const existing = await loadShared("all-users") || {};
     const filtered = {};
     Object.entries(existing).forEach(([k, v]) => {
-      // Filtrar registros que empiecen con EJE- o ejemplo_
       if (!k.startsWith("EJE-") && !k.startsWith("ejemplo_")) filtered[k] = v;
     });
     await saveShared("all-users", filtered);
@@ -634,6 +662,17 @@ function AdminDashboard() {
     setSeeding(false);
   };
 
+  const doDeleteUser = async () => {
+    if (!confirmDelete) return;
+    const existing = await loadShared("all-users") || {};
+    delete existing[confirmDelete.key];
+    await saveShared("all-users", existing);
+    setUsers({...existing});
+    setSel(null);
+    setConfirmDelete(null);
+  };
+
+  const allEntries = Object.entries(users);
   const all = Object.values(users);
   const done = all.filter(u => u.answers);
   const avg = { A:0,B:0,C:0,D:0 };
@@ -646,6 +685,40 @@ function AdminDashboard() {
 
   return (
     <div>
+      {confirmClear && (
+        <div className="modal-ov">
+          <div className="modal" style={{maxWidth:400}}>
+            <div className="modal-hdr">
+              <div className="modal-title">Confirmar eliminación</div>
+              <button className="modal-x" onClick={() => setConfirmClear(null)}>✕</button>
+            </div>
+            <div style={{fontSize:14,color:"var(--text2)",lineHeight:1.6,marginBottom:24}}>
+              ¿Estás seguro de que quieres borrar los <strong style={{color:"var(--text)"}}>{confirmClear.count} registros de ejemplo</strong>? Esta acción no se puede deshacer.
+            </div>
+            <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
+              <button className="btn-outline" onClick={() => setConfirmClear(null)}>Cancelar</button>
+              <button className="btn-submit" style={{background:"#EF4444",borderColor:"#EF4444"}} onClick={doClear}>Sí, borrar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      {confirmDelete && (
+        <div className="modal-ov" style={{zIndex:110}}>
+          <div className="modal" style={{maxWidth:400}}>
+            <div className="modal-hdr">
+              <div className="modal-title">Eliminar usuario</div>
+              <button className="modal-x" onClick={() => setConfirmDelete(null)}>✕</button>
+            </div>
+            <div style={{fontSize:14,color:"var(--text2)",lineHeight:1.6,marginBottom:24}}>
+              ¿Estás seguro de que quieres eliminar a <strong style={{color:"var(--text)"}}>{confirmDelete.user.name || confirmDelete.user.username}</strong>? Se borrarán todos sus datos y respuestas.
+            </div>
+            <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
+              <button className="btn-outline" onClick={() => setConfirmDelete(null)}>Cancelar</button>
+              <button className="btn-submit" style={{background:"#EF4444",borderColor:"#EF4444"}} onClick={doDeleteUser}>Sí, eliminar</button>
+            </div>
+          </div>
+        </div>
+      )}
       {sel && (
         <div className="modal-ov" onClick={e => e.target===e.currentTarget && setSel(null)}>
           <div className="modal">
@@ -712,11 +785,12 @@ function AdminDashboard() {
 
       <div className="pg-hdr" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
-          <div className="pg-title">Dashboard Administrador</div>
-          <div className="pg-sub">Resumen general de evaluaciones y resultados</div>
+          <div className="pg-title">{view==="usuarios" ? "Usuarios y resultados" : "Dashboard Administrador"}</div>
+          <div className="pg-sub">{view==="usuarios" ? "Listado de evaluados y sus resultados" : "Resumen general de evaluaciones y resultados"}</div>
         </div>
+        {view==="usuarios" && (
         <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
-          {!all.some(u => u.username.startsWith("EJE-") || u.username.startsWith("ejemplo_")) ? (
+          {!Object.keys(users).some(k => k.startsWith("EJE-") || k.startsWith("ejemplo_")) ? (
             <div style={{display:"flex",gap:"6px",alignItems:"center"}}>
               <input
                 type="number"
@@ -737,8 +811,10 @@ function AdminDashboard() {
             </button>
           )}
         </div>
+        )}
       </div>
 
+      {view === "resumen" && <>
       <div className="stats-g">
         {[
           {v:all.length, l:"Usuarios registrados"},
@@ -768,22 +844,25 @@ function AdminDashboard() {
           );
         })}
       </div>
+      </>}
 
+      {view === "usuarios" && <>
       <div className="sec-t">Usuarios y resultados</div>
       {all.length===0
         ? <div className="empty"><div className="empty-t">No hay usuarios registrados</div></div>
         : (
           <div className="tbl-wrap">
             <div className="tbl-head">
-              <span className="th">Nombre / Usuario</span>
+              <span className="th">Nombre / Identificación</span>
               <span className="th ctr">Estado</span>
               <span className="th ctr">Clarificador</span>
               <span className="th ctr">Ideador</span>
               <span className="th ctr">Desarrollador</span>
               <span className="th ctr">Implementador</span>
               <span className="th ctr">Completado</span>
+              <span className="th ctr">Eliminar</span>
             </div>
-            {all.map(u => {
+            {allEntries.map(([key, u]) => {
               const s=u.scores||{};
               const maxVal=u.scores?Math.max(...Object.values(s)):0;
               const topKeys=u.scores?Object.keys(s).filter(k=>s[k]===maxVal):[];
@@ -793,7 +872,7 @@ function AdminDashboard() {
                   <span className="td bold">
                     <div>
                       <div style={{fontSize:13}}>{u.name || "Sin nombre"}</div>
-                      <div style={{fontSize:10, color:"var(--text3)", fontWeight:400}}>@{u.username}</div>
+                      <div style={{fontSize:10, color:"var(--text3)", fontWeight:400}}>{u.username}</div>
                     </div>
                   </span>
                   <span className="td ctr">
@@ -821,12 +900,26 @@ function AdminDashboard() {
                   <span className="td ctr" style={{fontSize:11,color:"var(--text3)"}}>
                     {u.completedAt?new Date(u.completedAt).toLocaleDateString("es-CO"):"—"}
                   </span>
+                  <span className="td ctr">
+                    <button
+                      onClick={e => { e.stopPropagation(); setConfirmDelete({key, user: u}); }}
+                      style={{background:"none",border:"none",cursor:"pointer",color:"var(--text3)",padding:4,borderRadius:6,transition:"all .15s"}}
+                      onMouseEnter={e => { e.currentTarget.style.color="#EF4444"; e.currentTarget.style.background="rgba(239,68,68,.08)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.color="var(--text3)"; e.currentTarget.style.background="none"; }}
+                      title="Eliminar usuario"
+                    >
+                      <svg viewBox="0 0 24 24" style={{width:15,height:15}} fill="none" stroke="currentColor" strokeWidth="2">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+                      </svg>
+                    </button>
+                  </span>
                 </div>
               );
             })}
           </div>
         )
       }
+      </>}
     </div>
   );
 }
@@ -841,6 +934,8 @@ export default function App() {
   const [toast, setToast] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [adminMode, setAdminMode] = useState(false);
+  const [sideCollapsed, setSideCollapsed] = useState(true);
+  const [adminView, setAdminView] = useState("resumen");
 
   const doLogin = async () => {
     if (!login.name || !login.code) { 
@@ -967,10 +1062,21 @@ export default function App() {
                 {Ico.menu}
               </button>
             </header>
-            <div className={`sidebar${menuOpen ? " open" : ""}`}>
-
+            <div className={`sidebar${menuOpen ? " open" : ""}${sideCollapsed ? " collapsed" : ""}`}>
+              <button className="sb-toggle" onClick={() => setSideCollapsed(!sideCollapsed)} title={sideCollapsed ? "Expandir" : "Contraer"}>
+                <svg viewBox="0 0 24 24" style={{width:16,height:16}} fill="none" stroke="currentColor" strokeWidth="2">
+                  {sideCollapsed
+                    ? <polyline points="9 18 15 12 9 6"/>
+                    : <polyline points="15 18 9 12 15 6"/>
+                  }
+                </svg>
+              </button>
               <div className="nav-lbl">Menu</div>
-              <button className="nav-item active">{Ico.dash}Dashboard</button>
+              <button className={`nav-item${adminView==="resumen"?" active":""}`} onClick={() => setAdminView("resumen")}>{Ico.dash}<span>Dashboard</span></button>
+              <button className={`nav-item${adminView==="usuarios"?" active":""}`} onClick={() => setAdminView("usuarios")}>
+                <svg viewBox="0 0 24 24" style={{width:16,height:16,flexShrink:0}} fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+                <span>Usuarios</span>
+              </button>
               <div className="sb-bottom">
                 <div className="user-card">
                   <div className="user-av">A</div>
@@ -979,10 +1085,10 @@ export default function App() {
                     <div className="user-rl">Administrador</div>
                   </div>
                 </div>
-                <button className="logout-btn" onClick={doLogout}>{Ico.logout} Cerrar sesion</button>
+                <button className="logout-btn" onClick={doLogout}>{Ico.logout}<span> Cerrar sesion</span></button>
               </div>
             </div>
-            <div className="main"><AdminDashboard/></div>
+            <div className="main" style={{marginLeft: sideCollapsed ? 56 : 200}}><AdminDashboard view={adminView}/></div>
           </div>
         ) : (
           /* Layout limpio para evaluados — sin sidebar */
