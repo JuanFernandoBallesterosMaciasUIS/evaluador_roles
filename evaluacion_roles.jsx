@@ -449,9 +449,11 @@ function ScaleRow({ value, onChange }) {
 
 function AssessmentPage({ user, onComplete }) {
   const [answers, setAnswers] = useState(Array(QUESTIONS.length).fill(null));
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(-1); // -1 = pregunta de ejemplo
+  const [exampleAnswer, setExampleAnswer] = useState(null);
   const [saving, setSaving] = useState(false);
   const refs = useRef([]);
+  const exampleRef = useRef(null);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -464,15 +466,21 @@ function AssessmentPage({ user, onComplete }) {
       
       if (val !== null) {
         e.preventDefault();
-        const n = [...answers];
-        n[active] = val;
-        setAnswers(n);
-        
-        // Avanzar a la siguiente pregunta si existe
-        if (active < QUESTIONS.length - 1) {
-          const next = active + 1;
-          setActive(next);
-          refs.current[next]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (active === -1) {
+          // Pregunta de ejemplo: responder y avanzar a la primera real
+          setExampleAnswer(val);
+          setActive(0);
+          refs.current[0]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        } else {
+          const n = [...answers];
+          n[active] = val;
+          setAnswers(n);
+          // Avanzar a la siguiente pregunta si existe
+          if (active < QUESTIONS.length - 1) {
+            const next = active + 1;
+            setActive(next);
+            refs.current[next]?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }
         }
       }
     };
@@ -514,6 +522,30 @@ function AssessmentPage({ user, onComplete }) {
           <span>{Math.round((answered/QUESTIONS.length)*100)}%</span>
         </div>
         <div className="prog-outer"><div className="prog-inner" style={{width:`${(answered/QUESTIONS.length)*100}%`}}/></div>
+      </div>
+
+      {/* ── Pregunta de ejemplo ────────────────────────────────────── */}
+      <div
+        ref={exampleRef}
+        className={`q-card${exampleAnswer!=null?" answered":""}${active===-1?" active":""}`}
+        style={{borderLeft:"3px solid #F59E0B",background:"var(--bg2)"}}
+        onClick={() => setActive(-1)}
+      >
+        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+          <span style={{background:"#F59E0B",color:"#fff",fontSize:11,fontWeight:700,padding:"2px 10px",borderRadius:20,letterSpacing:.4,textTransform:"uppercase"}}>Ejemplo — no cuenta en tu resultado</span>
+        </div>
+        <div style={{fontSize:12,color:"var(--text3)",marginBottom:10,lineHeight:1.5}}>
+          Esta pregunta es solo de práctica para que te familiarices con la escala. Tu respuesta aquí <strong>no afecta</strong> ni el progreso ni los resultados.
+        </div>
+        <div className="q-text" style={{marginBottom:12}}>Generalmente no me acerco a los problemas en forma creativa</div>
+        <ScaleRow
+          value={exampleAnswer}
+          onChange={v => {
+            setExampleAnswer(v);
+            setActive(0);
+            refs.current[0]?.scrollIntoView({ behavior: "smooth", block: "center" });
+          }}
+        />
       </div>
 
       {QUESTIONS.map((q,i) => (
