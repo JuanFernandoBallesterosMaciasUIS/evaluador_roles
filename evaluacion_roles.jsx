@@ -823,7 +823,11 @@ function AdminDashboard({ view = "resumen" }) {
     }
   };
 
-  const allEntries = Object.entries(users);
+  const allEntries = Object.entries(users).sort(([,a],[,b]) => {
+    const da = a.completedAt ? new Date(a.completedAt).getTime() : 0;
+    const db = b.completedAt ? new Date(b.completedAt).getTime() : 0;
+    return db - da;
+  });
   const all = Object.values(users);
   const done = all.filter(u => u.answers);
   const avg = { A:0,B:0,C:0,D:0 };
