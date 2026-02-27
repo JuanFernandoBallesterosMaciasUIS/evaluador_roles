@@ -172,7 +172,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 
 /* LAYOUT */
 .layout{display:flex;min-height:100vh}
-.sidebar{width:200px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--bdr);padding:18px 10px;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:20;transition:width .25s ease,padding .25s ease;overflow:hidden}
+.sidebar{width:200px;flex-shrink:0;background:var(--sidebar);border-right:1px solid var(--bdr);padding:18px 10px;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:20;transition:width .25s ease,padding .25s ease;overflow:visible}
 .sidebar.collapsed{width:56px;padding:18px 6px}
 .sidebar.collapsed .nav-lbl,.sidebar.collapsed .sb-logo-text,.sidebar.collapsed .sb-logo-sub,.sidebar.collapsed .user-nm,.sidebar.collapsed .user-rl,.sidebar.collapsed .admin-badge{display:none}
 .sidebar.collapsed .nav-item{justify-content:center;padding:9px 0}
@@ -187,6 +187,9 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .sb-toggle{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;border:1px solid var(--bdr);background:var(--bg2);cursor:pointer;color:var(--text2);margin-bottom:10px;align-self:flex-end;flex-shrink:0;transition:all .15s}
 .sb-toggle:hover{background:var(--acc);color:#fff;border-color:var(--acc)}
 .sidebar.collapsed .sb-toggle{align-self:center}
+.sidebar.collapsed [data-tip]{position:relative}
+.sidebar.collapsed [data-tip]:hover::after{content:attr(data-tip);position:absolute;left:calc(100% + 14px);top:50%;transform:translateY(-50%);background:var(--text);color:var(--bg2);white-space:nowrap;padding:5px 10px;border-radius:7px;font-size:12px;font-weight:600;pointer-events:none;z-index:200;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.sidebar.collapsed [data-tip]:hover::before{content:"";position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);border:5px solid transparent;border-right-color:var(--text);pointer-events:none;z-index:200}
 .sb-logo{display:flex;align-items:center;gap:10px;padding:6px 8px;margin-bottom:26px}
 .sb-logo-mark{width:32px;height:32px;background:linear-gradient(135deg,var(--acc),var(--acc2));border-radius:8px;padding:6px;flex-shrink:0}
 .sb-logo-text{font-size:14px;font-weight:800;color:var(--text);letter-spacing:-.3px}
@@ -602,7 +605,10 @@ function AdminDashboard({ view = "resumen" }) {
   const [seeding, setSeeding] = useState(false);
   const [seedCount, setSeedCount] = useState(50);
   const [confirmClear, setConfirmClear] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(null); // {key, user}
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [importError, setImportError] = useState("");
+  const [importSuccess, setImportSuccess] = useState("");
+  const importRef = useRef(null);
 
   useEffect(() => { loadShared("all-users").then(d => { setUsers(d||{}); setLoading(false); }); }, []);
 
@@ -670,6 +676,104 @@ function AdminDashboard({ view = "resumen" }) {
     setUsers({...existing});
     setSel(null);
     setConfirmDelete(null);
+  };
+
+  const handleExportJSON = () => {
+    const data = JSON.stringify(users, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `resultados_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ["Nombre","Identificación","Estado","Perfil A","Perfil B","Perfil C","Perfil D","Perfil Dominante","Fecha Completado"];
+    const rows = all.map(u => {
+      const s = u.scores || {};
+      const maxV = u.scores ? Math.max(...Object.values(s)) : 0;
+      const dominant = u.scores ? Object.keys(s).filter(k => s[k]===maxV).map(k => PROFILES[k].label).join("/") : "—";
+      return [
+        `"${(u.name||"").replace(/"/g,'""')}"`,
+        u.username || "",
+        u.answers ? "Completado" : "Pendiente",
+        s.A ?? "", s.B ?? "", s.C ?? "", s.D ?? "",
+        dominant,
+        u.completedAt ? new Date(u.completedAt).toLocaleDateString("es-CO") : ""
+      ].join(",");
+    });
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob(["\uFEFF"+csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `resultados_${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+    try {
+      const text = await file.text();
+      const existing = await loadShared("all-users") || {};
+      let merged = { ...existing };
+
+      if (file.name.endsWith(".json")) {
+        const parsed = JSON.parse(text);
+        if (typeof parsed !== "object" || Array.isArray(parsed)) throw new Error("Formato inválido");
+        merged = { ...merged, ...parsed };
+      } else if (file.name.endsWith(".csv")) {
+        // Parsear CSV con soporte de campos entre comillas
+        const parseCSVRow = (row) => {
+          const fields = [];
+          let cur = "", inQ = false;
+          for (let i = 0; i < row.length; i++) {
+            const ch = row[i];
+            if (ch === '"') {
+              if (inQ && row[i+1] === '"') { cur += '"'; i++; }
+              else inQ = !inQ;
+            } else if (ch === ',' && !inQ) { fields.push(cur); cur = ""; }
+            else cur += ch;
+          }
+          fields.push(cur);
+          return fields.map(f => f.trim());
+        };
+        const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter(l => l.trim());
+        // saltar encabezado
+        for (let i = 1; i < lines.length; i++) {
+          const [nombre, identificacion, estado, pA, pB, pC, pD, , fechaComp] = parseCSVRow(lines[i]);
+          if (!identificacion) continue;
+          const key = `IMP-${identificacion}`;
+          const scores = { A: Number(pA)||0, B: Number(pB)||0, C: Number(pC)||0, D: Number(pD)||0 };
+          const hasScores = Object.values(scores).some(v => v > 0);
+          merged[key] = {
+            name: nombre || "",
+            username: identificacion,
+            role: "user",
+            ...(hasScores ? { scores, answers: [] } : {}),
+            ...(estado==="Completado" && fechaComp ? { completedAt: new Date(fechaComp.split("/").reverse().join("-")).toISOString() } : {})
+          };
+        }
+      } else {
+        throw new Error("Formato no soportado");
+      }
+
+      await saveShared("all-users", merged);
+      setUsers({...merged});
+      const newCount = Object.keys(merged).length - Object.keys(existing).length;
+      setImportError("");
+      setImportSuccess(`Se importaron ${newCount} registro${newCount !== 1 ? "s" : ""} correctamente.`);
+      setTimeout(() => setImportSuccess(""), 5000);
+    } catch(err) {
+      setImportError("Error al importar: el archivo no es válido.");
+      setImportSuccess("");
+      setTimeout(() => setImportError(""), 4000);
+    }
   };
 
   const allEntries = Object.entries(users);
@@ -783,13 +887,34 @@ function AdminDashboard({ view = "resumen" }) {
         </div>
       )}
 
-      <div className="pg-hdr" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <input ref={importRef} type="file" accept=".json,.csv" style={{display:"none"}} onChange={handleImport}/>
+
+      {importError && (
+        <div style={{background:"rgba(239,68,68,.1)",border:"1px solid rgba(239,68,68,.3)",borderRadius:8,padding:"8px 14px",marginBottom:14,fontSize:13,color:"#EF4444"}}>{importError}</div>
+      )}
+      {importSuccess && (
+        <div style={{background:"rgba(16,185,129,.1)",border:"1px solid rgba(16,185,129,.3)",borderRadius:8,padding:"8px 14px",marginBottom:14,fontSize:13,color:"#10B981",display:"flex",alignItems:"center",gap:8}}>
+          <svg viewBox="0 0 24 24" style={{width:16,height:16,flexShrink:0}} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>
+          {importSuccess}
+        </div>
+      )}
+
+      <div className="pg-hdr" style={{display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:10}}>
         <div>
           <div className="pg-title">{view==="usuarios" ? "Usuarios y resultados" : "Dashboard Administrador"}</div>
           <div className="pg-sub">{view==="usuarios" ? "Listado de evaluados y sus resultados" : "Resumen general de evaluaciones y resultados"}</div>
         </div>
-        {view==="usuarios" && (
-        <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
+        <div style={{display:"flex",gap:"8px",alignItems:"center",flexWrap:"wrap"}}>
+          <button className="btn-outline" onClick={handleExportCSV} title="Exportar como CSV" style={{display:"flex",alignItems:"center",gap:6}}>
+            <svg viewBox="0 0 24 24" style={{width:14,height:14}} fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            CSV
+          </button>
+          <button className="btn-outline" onClick={() => importRef.current?.click()} title="Importar desde JSON" style={{display:"flex",alignItems:"center",gap:6}}>
+            <svg viewBox="0 0 24 24" style={{width:14,height:14}} fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importar
+          </button>
+          {view==="usuarios" && (
+          <>
           {!Object.keys(users).some(k => k.startsWith("EJE-") || k.startsWith("ejemplo_")) ? (
             <div style={{display:"flex",gap:"6px",alignItems:"center"}}>
               <input
@@ -810,8 +935,9 @@ function AdminDashboard({ view = "resumen" }) {
               {seeding ? "Limpiando..." : "Limpiar datos de ejemplo"}
             </button>
           )}
+          </>
+          )}
         </div>
-        )}
       </div>
 
       {view === "resumen" && <>
@@ -1072,8 +1198,8 @@ export default function App() {
                 </svg>
               </button>
               <div className="nav-lbl">Menu</div>
-              <button className={`nav-item${adminView==="resumen"?" active":""}`} onClick={() => setAdminView("resumen")}>{Ico.dash}<span>Dashboard</span></button>
-              <button className={`nav-item${adminView==="usuarios"?" active":""}`} onClick={() => setAdminView("usuarios")}>
+              <button className={`nav-item${adminView==="resumen"?" active":""}`} data-tip="Dashboard" onClick={() => setAdminView("resumen")}>{Ico.dash}<span>Dashboard</span></button>
+              <button className={`nav-item${adminView==="usuarios"?" active":""}`} data-tip="Usuarios" onClick={() => setAdminView("usuarios")}>
                 <svg viewBox="0 0 24 24" style={{width:16,height:16,flexShrink:0}} fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
                 <span>Usuarios</span>
               </button>
@@ -1085,7 +1211,7 @@ export default function App() {
                     <div className="user-rl">Administrador</div>
                   </div>
                 </div>
-                <button className="logout-btn" onClick={doLogout}>{Ico.logout}<span> Cerrar sesion</span></button>
+                <button className="logout-btn" data-tip="Cerrar sesión" onClick={doLogout}>{Ico.logout}<span> Cerrar sesion</span></button>
               </div>
             </div>
             <div className="main" style={{marginLeft: sideCollapsed ? 56 : 200}}><AdminDashboard view={adminView}/></div>
