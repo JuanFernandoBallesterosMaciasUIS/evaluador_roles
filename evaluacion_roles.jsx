@@ -197,13 +197,18 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .pg-title{font-size:23px;font-weight:800;color:var(--text);letter-spacing:-.6px}
 .pg-sub{font-size:13px;color:var(--text2);margin-top:3px}
 
+/* EXIT FLOAT */
+.exit-float{position:fixed;top:10px;right:16px;z-index:50;display:flex;align-items:center;gap:6px;padding:7px 14px;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.07);transition:all .18s}
+.exit-float:hover{color:#EF4444;border-color:#EF4444;box-shadow:0 3px 12px rgba(239,68,68,.12)}
+
 /* ASSESSMENT */
 .assess-wrap{width:100%;max-width:960px;margin:0 auto}
 .prog-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:6px}
-.prog-outer{background:var(--bdr);border-radius:100px;height:4px;margin-bottom:26px}
-.prog-inner{background:linear-gradient(90deg,var(--acc),var(--acc2));height:4px;border-radius:100px;transition:width .4s ease}
+.prog-sticky{position:sticky;top:0;z-index:25;background:var(--bg);padding:12px 0 10px;margin-bottom:12px;border-bottom:1px solid var(--bdr);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.prog-outer{background:var(--bdr);border-radius:100px;height:5px;margin-bottom:0}
+.prog-inner{background:linear-gradient(90deg,var(--acc),var(--acc2));height:5px;border-radius:100px;transition:width .4s ease}
 
-.q-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:22px 24px;margin-bottom:14px;transition:all .2s;scroll-margin-top:16px;outline:none}
+.q-card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:22px 24px;margin-bottom:14px;transition:all .2s;scroll-margin-top:70px;outline:none}
 .q-card.answered{border-left:3px solid var(--acc)}
 .q-card.active{border:2.5px solid var(--acc);box-shadow:0 8px 30px rgba(79,70,229,.12);transform:scale(1.01)}
 .q-card:hover{border-color:${dark?"rgba(79,70,229,.3)":"#C7D2FE"}}
@@ -372,19 +377,24 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
   .scale-lbl-row{display:flex;justify-content:space-between}
   .slbl.mid{display:none}
   .home-cta{padding:36px 24px}
+  .prog-sticky{padding-right:90px}
+  .q-card{scroll-margin-top:65px}
 }
 
 @media(max-width:600px){
   .stats-g,.avg-g{grid-template-columns:1fr}
   .p-grid{grid-template-columns:1fr 1fr}
   .pg-title{font-size:20px}
-  .q-card{padding:12px 14px}
+  .q-card{padding:12px 14px;scroll-margin-top:60px}
   .res-actions{flex-direction:column}
   .btn-outline,.btn-submit{width:100%}
   .scale-row{display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(2,1fr)}
   .assess-foot{flex-direction:column;gap:12px;align-items:stretch}
   .assess-foot .btn-submit{width:100%}
   .foot-count{text-align:center}
+  .prog-sticky{padding-right:70px;padding-top:8px;padding-bottom:7px}
+  .prog-meta{font-size:11px}
+  .exit-float{padding:5px 10px;font-size:11px;top:8px;right:10px}
 }
 `;
 
@@ -477,18 +487,20 @@ function AssessmentPage({ user, onComplete }) {
         </div>
         <div>
           <div style={{fontSize:15,fontWeight:700,color:"var(--text)"}}>{user?.name}</div>
-          <div style={{fontSize:11,color:"var(--text3)",fontFamily:"'JetBrains Mono',monospace"}}>Código: {user?.username}</div>
+          <div style={{fontSize:11,color:"var(--text3)",fontFamily:"'JetBrains Mono',monospace"}}>Identificación: {user?.username}</div>
         </div>
         <div style={{marginLeft:"auto",fontSize:11,color:"var(--text3)",textAlign:"right",lineHeight:1.5}}>
           <span style={{fontWeight:700,color:"var(--text2)"}}>⌨ Atajo de teclado:</span><br/>
           Presiona <strong style={{color:"var(--acc)"}}>1</strong> a <strong style={{color:"var(--acc)"}}>9</strong> para responder, <strong style={{color:"var(--acc)"}}>0</strong> para el valor <strong style={{color:"var(--acc)"}}>10</strong>
         </div>
       </div>
-      <div className="prog-meta">
-        <span>{answered} de {QUESTIONS.length} respondidas</span>
-        <span>{Math.round((answered/QUESTIONS.length)*100)}%</span>
+      <div className="prog-sticky">
+        <div className="prog-meta">
+          <span>{answered} de {QUESTIONS.length} respondidas</span>
+          <span>{Math.round((answered/QUESTIONS.length)*100)}%</span>
+        </div>
+        <div className="prog-outer"><div className="prog-inner" style={{width:`${(answered/QUESTIONS.length)*100}%`}}/></div>
       </div>
-      <div className="prog-outer"><div className="prog-inner" style={{width:`${(answered/QUESTIONS.length)*100}%`}}/></div>
 
       {QUESTIONS.map((q,i) => (
         <div
@@ -577,6 +589,7 @@ function AdminDashboard() {
   const [sel, setSel] = useState(null);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
+  const [seedCount, setSeedCount] = useState(50);
 
   useEffect(() => { loadShared("all-users").then(d => { setUsers(d||{}); setLoading(false); }); }, []);
 
@@ -586,7 +599,8 @@ function AdminDashboard() {
     const baseNames = ["Juan", "Maria", "Carlos", "Ana", "Luis", "Elena", "Diego", "Sofia", "Andres", "Lucia"];
     const baseLast = ["Gomez", "Perez", "Rodriguez", "Lopez", "Martinez", "Garcia", "Sanchez", "Ramirez"];
     
-    for (let i = 1; i <= 499; i++) {
+    const total = Math.max(1, Math.min(2000, Number(seedCount) || 50));
+    for (let i = 1; i <= total; i++) {
       const uname = `EJE-${1000 + i}`; // Usar un formato de código para el ejemplo
       if (existing[uname]) continue;
       const nom = `${baseNames[Math.floor(Math.random()*baseNames.length)]} ${baseLast[Math.floor(Math.random()*baseLast.length)]}`;
@@ -606,7 +620,8 @@ function AdminDashboard() {
   };
 
   const handleClear = async () => {
-    if (!confirm("¿Seguro que quieres borrar los 499 registros de ejemplo?")) return;
+    const exCount = all.filter(u => u.username.startsWith("EJE-") || u.username.startsWith("ejemplo_")).length;
+    if (!confirm(`¿Seguro que quieres borrar los ${exCount} registros de ejemplo?`)) return;
     setSeeding(true);
     const existing = await loadShared("all-users") || {};
     const filtered = {};
@@ -700,11 +715,22 @@ function AdminDashboard() {
           <div className="pg-title">Dashboard Administrador</div>
           <div className="pg-sub">Resumen general de evaluaciones y resultados</div>
         </div>
-        <div style={{display:"flex",gap:"10px"}}>
+        <div style={{display:"flex",gap:"10px",alignItems:"center"}}>
           {!all.some(u => u.username.startsWith("EJE-") || u.username.startsWith("ejemplo_")) ? (
-            <button className="btn-outline" onClick={handleSeed} disabled={seeding}>
-              {seeding ? "Generando..." : "Generar 499 datos de ejemplo"}
-            </button>
+            <div style={{display:"flex",gap:"6px",alignItems:"center"}}>
+              <input
+                type="number"
+                min="1"
+                max="2000"
+                value={seedCount}
+                onChange={e => setSeedCount(e.target.value)}
+                disabled={seeding}
+                style={{width:70,padding:"5px 8px",borderRadius:6,border:"1px solid var(--bdr)",fontSize:13,textAlign:"center",background:"var(--bg2)",color:"var(--text1)"}}
+              />
+              <button className="btn-outline" onClick={handleSeed} disabled={seeding}>
+                {seeding ? "Generando..." : "Generar datos de ejemplo"}
+              </button>
+            </div>
           ) : (
             <button className="btn-outline" style={{borderColor:"#EF4444",color:"#EF4444"}} onClick={handleClear} disabled={seeding}>
               {seeding ? "Limpiando..." : "Limpiar datos de ejemplo"}
@@ -818,7 +844,7 @@ export default function App() {
 
   const doLogin = async () => {
     if (!login.name || !login.code) { 
-      setErr("Por favor ingresa tu nombre y código."); 
+      setErr("Por favor ingresa tu nombre e identificación."); 
       return; 
     }
 
@@ -872,19 +898,13 @@ export default function App() {
       <div className="app">
         {screen==="login" ? (
           <div className="auth-wrap">
-            <div className="auth-card">              <div className="auth-brand">
-                <div className="auth-brand-mark">{Ico.brand}</div>
-                <div>
-                  <div className="auth-brand-name">EvalPerfil</div>
-                  <div className="auth-brand-sub">Evaluacion de perfil profesional</div>
-                </div>
-              </div>
+            <div className="auth-card">
               {err && <div className="auth-err">{err}</div>}
               {!adminMode ? (
                 <>
                   <div className="auth-heading">Responder Encuesta</div>
                   <div className="pg-sub" style={{marginBottom:18,fontSize:13,color:"var(--text2)",lineHeight:1.6}}>
-                    Ingresa tu nombre y código para acceder al cuestionario de perfil profesional.
+                    Ingresa tu nombre e identificación para acceder al cuestionario de perfil profesional.
                   </div>
                   <div className="field">
                     <label>Nombre Completo</label>
@@ -895,9 +915,9 @@ export default function App() {
                     />
                   </div>
                   <div className="field">
-                    <label>Código</label>
+                    <label>Identificación</label>
                     <input 
-                      placeholder="Tu código de identificación" 
+                      placeholder="Tu número de identificación" 
                       value={login.code}
                       onChange={e => setLogin({ ...login, code: e.target.value })}
                       onKeyDown={e => e.key === "Enter" && doLogin()} 
@@ -924,10 +944,10 @@ export default function App() {
                     />
                   </div>
                   <div className="field">
-                    <label>Código de acceso</label>
+                    <label>Clave de acceso</label>
                     <input 
                       type="password"
-                      placeholder="Código secreto" 
+                      placeholder="Clave secreta" 
                       value={login.code}
                       onChange={e => setLogin({ ...login, code: e.target.value })}
                       onKeyDown={e => e.key === "Enter" && doLogin()} 
@@ -942,22 +962,13 @@ export default function App() {
         ) : screen==="done" ? null : isAdmin ? (
           <div className="layout">
             <header className="mob-hdr">
-              <div className="mob-logo">
-                <div className="mob-logo-mark">{Ico.brand}</div>
-                <div className="mob-logo-text">EvalPerfil</div>
-              </div>
+              <div className="mob-logo"/>
               <button className="mob-menu-btn" onClick={() => setMenuOpen(!menuOpen)}>
                 {Ico.menu}
               </button>
             </header>
             <div className={`sidebar${menuOpen ? " open" : ""}`}>
-              <div className="sb-logo">
-                <div className="sb-logo-mark">{Ico.brand}</div>
-                <div>
-                  <div className="sb-logo-text">EvalPerfil</div>
-                  <div className="sb-logo-sub">Evaluacion de perfil</div>
-                </div>
-              </div>
+
               <div className="nav-lbl">Menu</div>
               <button className="nav-item active">{Ico.dash}Dashboard</button>
               <div className="sb-bottom">
@@ -976,13 +987,10 @@ export default function App() {
         ) : (
           /* Layout limpio para evaluados — sin sidebar */
           <div style={{minHeight:"100vh",background:"var(--bg)",boxSizing:"border-box"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 28px",background:"var(--bg2)",borderBottom:"1px solid var(--bdr)",position:"sticky",top:0,zIndex:30,boxShadow:"0 2px 10px rgba(0,0,0,.05)"}}>
-              <div style={{display:"flex",alignItems:"center",gap:9}}>
-                <div style={{width:28,height:28,background:"linear-gradient(135deg,var(--acc),#6366F1)",borderRadius:7,padding:5,flexShrink:0}}>{Ico.brand}</div>
-                <span style={{fontSize:14,fontWeight:800,color:"var(--text)"}}>EvalPerfil</span>
-              </div>
-              <button className="logout-btn" style={{marginTop:0,width:"auto"}} onClick={doLogout}>{Ico.logout} Salir</button>
-            </div>
+            <button
+              onClick={doLogout}
+              className="exit-float"
+            >{Ico.logout} Salir</button>
             <div style={{maxWidth:780,margin:"0 auto",padding:"32px 20px"}}>
               <AssessmentPage
                 user={user}
