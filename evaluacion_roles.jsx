@@ -315,7 +315,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
 .avg-sub{font-size:10px;color:var(--text3);margin-top:4px}
 
 /* TABLE */
-.tbl-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:13px;overflow-x:auto}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--bdr);border-radius:13px;overflow-x:auto;overflow-y:auto;max-height:calc(100vh - 220px)}
 .tbl-head{
   display:grid;
   grid-template-columns:minmax(140px,1.5fr) 110px repeat(4,1fr) 100px 60px;
@@ -324,6 +324,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);transi
   border-bottom:1px solid var(--bdr);
   gap:8px;
   min-width: 860px;
+  position:sticky;top:0;z-index:5;
 }
 .th{font-size:10px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;display:flex;align-items:center}
 .th.ctr{justify-content:center}
@@ -637,6 +638,7 @@ function AdminDashboard({ view = "resumen" }) {
   const [seeding, setSeeding] = useState(false);
   const [seedCount, setSeedCount] = useState(50);
   const [confirmClear, setConfirmClear] = useState(null);
+  const [confirmClearAll, setConfirmClearAll] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [importError, setImportError] = useState("");
   const [importSuccess, setImportSuccess] = useState("");
@@ -697,6 +699,19 @@ function AdminDashboard({ view = "resumen" }) {
     });
     await saveShared("all-users", filtered);
     setUsers(filtered);
+    setSeeding(false);
+  };
+
+  const handleClearAll = () => {
+    const total = Object.keys(users).length;
+    setConfirmClearAll({ count: total });
+  };
+
+  const doClearAll = async () => {
+    setConfirmClearAll(null);
+    setSeeding(true);
+    await saveShared("all-users", {});
+    setUsers({});
     setSeeding(false);
   };
 
@@ -821,6 +836,23 @@ function AdminDashboard({ view = "resumen" }) {
 
   return (
     <div>
+      {confirmClearAll && (
+        <div className="modal-ov" style={{zIndex:120}}>
+          <div className="modal" style={{maxWidth:420}}>
+            <div className="modal-hdr">
+              <div className="modal-title">Eliminar todos los registros</div>
+              <button className="modal-x" onClick={() => setConfirmClearAll(null)}>✕</button>
+            </div>
+            <div style={{fontSize:14,color:"var(--text2)",lineHeight:1.6,marginBottom:24}}>
+              ¿Estás seguro de que quieres eliminar <strong style={{color:"#EF4444"}}>{confirmClearAll.count} registros</strong> (incluyendo usuarios reales, datos de ejemplo e importados)? <strong style={{color:"var(--text)"}}>Esta acción no se puede deshacer.</strong>
+            </div>
+            <div style={{display:"flex",gap:10,justifyContent:"flex-end"}}>
+              <button className="btn-outline" onClick={() => setConfirmClearAll(null)}>Cancelar</button>
+              <button className="btn-submit" style={{background:"#EF4444",borderColor:"#EF4444"}} onClick={doClearAll}>Sí, eliminar todo</button>
+            </div>
+          </div>
+        </div>
+      )}
       {confirmClear && (
         <div className="modal-ov">
           <div className="modal" style={{maxWidth:400}}>
@@ -944,6 +976,16 @@ function AdminDashboard({ view = "resumen" }) {
           <button className="btn-outline" onClick={() => importRef.current?.click()} title="Importar desde JSON" style={{display:"flex",alignItems:"center",gap:6}}>
             <svg viewBox="0 0 24 24" style={{width:14,height:14}} fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
             Importar
+          </button>
+          <button
+            className="btn-outline"
+            style={{borderColor:"#EF4444",color:"#EF4444",display:"flex",alignItems:"center",gap:6}}
+            onClick={handleClearAll}
+            disabled={seeding || Object.keys(users).length === 0}
+            title="Eliminar todos los registros"
+          >
+            <svg viewBox="0 0 24 24" style={{width:14,height:14}} fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+            Eliminar todo
           </button>
           {view==="usuarios" && (
           <>
